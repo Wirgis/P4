@@ -14,25 +14,6 @@ colnames(data.raw) <- gsub("\\.$", "", colnames(data.raw))
 colnames(data.raw) <- gsub("Per.Capita", "PerCap", colnames(data.raw))
 colnames(data.raw) <- gsub("Per.Household", "PerHH", colnames(data.raw))
 
-## Countries
-data.raw$Country <- as.character(data.raw$Country)
-data.raw$Country <- gsub(" ", ".", data.raw$Country)
-
-## Category
-data.raw$Category <- as.character(data.raw$Category)
-data.raw$Category <- gsub(" ", ".", data.raw$Category)
-data.raw$Category <- gsub("\\,", "", data.raw$Category)
-data.raw$Category <- gsub("\\(Entire.Economy\\)", "Entire.Economy",
-                          data.raw$Category)
-
-## Subcategory
-data.raw$Subcategory <- as.character(data.raw$Subcategory)
-data.raw$Subcategory <- gsub(" ", ".", data.raw$Subcategory)
-data.raw$Subcategory <- gsub("\\,", "", data.raw$Subcategory)
-data.raw$Subcategory <- gsub("\\.\\.", "", data.raw$Subcategory)
-data.raw$Subcategory <- gsub("\\.\\.\\.", "", data.raw$Subcategory)
-data.raw$Subcategory <- gsub("\\.\\.\\.\\.", "", data.raw$Subcategory)
-
 ## Data Type: one option
 data.raw$Data.Type <- NULL
 
@@ -74,8 +55,7 @@ data.raw$PerCap.Unit.PerHH <- NULL
 ## 5: US per household, year on year exchange rate;
 ## 6: US per household, fixed 2011 exchange rate;
 
-columns <- c("Country", "Category", "Subcategory", "Hierarchy.Level",
-             "Currency.Conversion")
+columns <- c("Country", "CategorySub", "Subcategory", "Currency.Conversion")
 
 
 data.raw.million <- data.raw[, colnames(data.raw) %in% c(columns, 1997:2011)]
@@ -92,11 +72,11 @@ data.raw.percap <- data.raw[, colnames(data.raw) %in%
 data.raw.PC.flow <- data.raw.percap[data.raw.percap$Currency.Conversion ==
                                     "year.on.year.exch", ]
 data.raw.PC.flow$Currency.Conversion <- NULL
-colnames(data.raw.PC.flow) [5:length(colnames(data.raw.PC.flow))]<- 1997:2011
+colnames(data.raw.PC.flow) [3:length(colnames(data.raw.PC.flow))]<- 1997:2011
 data.raw.PC.fix <- data.raw.percap[data.raw.percap$Currency.Conversion ==
                                     "fixed.2011", ]
 data.raw.PC.fix$Currency.Conversion <- NULL
-colnames(data.raw.PC.fix) [5:length(colnames(data.raw.PC.fix))]<- 1997:2011
+colnames(data.raw.PC.fix) [3:length(colnames(data.raw.PC.fix))]<- 1997:2011
 
 
 data.raw.perHH <- data.raw[, colnames(data.raw) %in%
@@ -104,11 +84,11 @@ data.raw.perHH <- data.raw[, colnames(data.raw) %in%
 data.raw.PHH.flow <- data.raw.perHH[data.raw.perHH$Currency.Conversion ==
                                     "year.on.year.exch", ]
 data.raw.PHH.flow$Currency.Conversion <- NULL
-colnames(data.raw.PHH.flow) [5:length(colnames(data.raw.PHH.flow))]<- 1997:2011
+colnames(data.raw.PHH.flow) [3:length(colnames(data.raw.PHH.flow))]<- 1997:2011
 data.raw.PHH.fix <- data.raw.perHH[data.raw.perHH$Currency.Conversion ==
                                    "fixed.2011", ]
 data.raw.PHH.fix$Currency.Conversion <- NULL
-colnames(data.raw.PHH.fix) [5:length(colnames(data.raw.PHH.fix))]<- 1997:2011
+colnames(data.raw.PHH.fix) [3:length(colnames(data.raw.PHH.fix))]<- 1997:2011
 
 
 # make growth rates
