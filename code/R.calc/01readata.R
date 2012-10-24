@@ -27,10 +27,10 @@ data.raw$Current.Constant <- NULL
 ## Currency Conversion
 data.raw$Currency.Conversion <- as.character(data.raw$Currency.Conversion)
 data.raw$Currency.Conversion <- gsub(" ", ".", data.raw$Currency.Conversion)
-data.raw$Currency.Conversion <- gsub(unique(data.raw$Currency.Conversion)[1],
+data.raw$Currency.Conversion <- gsub("Historic.Year-on-Year.Exchange.Rates,.Forecast.Year-on-Year.Exchange.Rates",
                                      "year.on.year.exch",
                                      data.raw$Currency.Conversion)
-data.raw$Currency.Conversion <- gsub(unique(data.raw$Currency.Conversion)[2],
+data.raw$Currency.Conversion <- gsub("Historic.Fixed.2011.Exchange.Rates,.Forecast.Fixed.2011.Exchange.Rates",
                                      "fixed.2011",
                                      data.raw$Currency.Conversion)
 
