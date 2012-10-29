@@ -1,0 +1,12 @@
+# -- darbiniai R formatai
+*.Rproj.user
+*.Rhistory
+*.RData
+*.Rproj
+
+# -- duomenys ir exceliniai failai nereikalingi
+*.xlsx
+Country.id.csv
+Category.id.csv
+
+
