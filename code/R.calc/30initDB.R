@@ -2,7 +2,7 @@ library(RSQLite)
 
 ## creat database
 drv <- SQLite()
-con <- dbConnect(drv, dbname = "P4.sqlite")
+con <- dbConnect(drv, dbname = "output/R/P4.sqlite")
 
 ## create table1: Countries
 cn <- read.csv("data/rawdata/EMI_private/Country.id.csv",
