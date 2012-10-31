@@ -90,6 +90,52 @@ data.raw.PHH.fix <- data.raw.perHH[data.raw.perHH$Currency.Conversion ==
 data.raw.PHH.fix$Currency.Conversion <- NULL
 colnames(data.raw.PHH.fix) [3:length(colnames(data.raw.PHH.fix))]<- 1997:2011
 
+# remove rows which have all NA
+data.raw.flow.na <- which(apply(data.raw.flow[, -c(1, 2)], 1,
+                            function(x) all(is.na(x))))
+data.raw.flow <- data.raw.flow[-data.raw.flow.na, ]
+data.raw.fix.na <- which(apply(data.raw.fix[, -c(1, 2)], 1,
+                               function(x) all(is.na(x))))
+data.raw.fix <- data.raw.fix[-data.raw.fix.na, ]
+data.raw.PC.flow.na <- which(apply(data.raw.PC.flow[, -c(1, 2)], 1,
+                               function(x) all(is.na(x))))
+data.raw.PC.flow <- data.raw.PC.flow[-data.raw.PC.flow.na, ]
+data.raw.PC.fix.na <- which(apply(data.raw.PC.fix[, -c(1, 2)], 1,
+                               function(x) all(is.na(x))))
+data.raw.PC.fix <- data.raw.PC.fix[-data.raw.PC.fix.na, ]
+data.raw.PHH.flow.na <- which(apply(data.raw.PHH.flow[, -c(1, 2)], 1,
+                               function(x) all(is.na(x))))
+data.raw.PHH.flow <- data.raw.PHH.flow[-data.raw.PHH.flow.na, ]
+data.raw.PHH.fix.na <- which(apply(data.raw.PHH.fix[, -c(1, 2)], 1,
+                               function(x) all(is.na(x))))
+data.raw.PHH.fix <- data.raw.PHH.fix[-data.raw.PHH.fix.na, ]
+
+
+## some strange cases
+check.na <- unique(which(is.na(data.raw.flow), arr.ind = T)[, 1])
+## data.raw.flow[check.na, ]
+data.raw.flow <- data.raw.flow[-check.na, ]
+
+check.na <- unique(which(is.na(data.raw.fix), arr.ind = T)[, 1])
+## data.raw.fix[check.na, ]
+data.raw.fix <- data.raw.fix[-check.na, ]
+
+check.na <- unique(which(is.na(data.raw.PC.flow), arr.ind = T)[, 1])
+##data.raw.PC.flow[check.na, ]
+data.raw.PC.flow <- data.raw.PC.flow[-check.na, ]
+
+check.na <- unique(which(is.na(data.raw.PC.fix), arr.ind = T)[, 1])
+##data.raw.PC.fix[check.na, ]
+data.raw.PC.fix <- data.raw.PC.fix[-check.na, ]
+
+check.na <- unique(which(is.na(data.raw.PHH.flow), arr.ind = T)[, 1])
+##data.raw.PHH.flow[check.na, ]
+data.raw.PHH.flow <- data.raw.PHH.flow[-check.na, ]
+
+check.na <- unique(which(is.na(data.raw.PHH.fix), arr.ind = T)[, 1])
+##data.raw.PHH.fix[check.na, ]
+data.raw.PHH.fix <- data.raw.PHH.fix[-check.na, ]
+
 
 # make growth rates
 data.flow <- MakeGrowthRates(data.raw.flow, as.character(1997:2011))
