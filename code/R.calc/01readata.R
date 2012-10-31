@@ -55,7 +55,7 @@ data.raw$PerCap.Unit.PerHH <- NULL
 ## 5: US per household, year on year exchange rate;
 ## 6: US per household, fixed 2011 exchange rate;
 
-columns <- c("Country", "CategorySub", "Subcategory", "Currency.Conversion")
+columns <- c("Country", "CategorySub", "Currency.Conversion")
 
 
 data.raw.million <- data.raw[, colnames(data.raw) %in% c(columns, 1997:2011)]
