@@ -45,20 +45,35 @@ sequential.time <- system.time({
 
       sql <- "INSERT INTO Correlations VALUES ($Country1, $Category1, $Country2,
  $Category2, $Corr)"
-      dbBeginTransaction(con)
-      dbGetPreparedQuery(con, sql, bind.data = data)
-      dbCommit(con)
+      ## dbBeginTransaction(con) # 823686 in 3 hour and 46 min
+      ## dbGetPreparedQuery(con, sql, bind.data = data)
+      ## dbCommit(con)
+
+      dbGetQuery(con, sql, bind.data = data) # 823686 in 1 hour and 40 min
+      ##dbSendQuery(con, sql, bind.data = data)
+
   }
 })
 
-# 823686 in 1 hour and 46 min, only correlations
-# 823686 in 3 hour and 46 min, into detabase
+
 dbListTables(con)
 dbListFields(con, "Categories")
 dbListFields(con, "Countries")
 dbListFields(con, "Correlations")
+
 dbDisconnect(con)
-## dbGetQuery(con, "SELECT * FROM Correlations, Countries WHERE Corr = 0 AND Country1 = id_cn OR Country2 = id_cn")
+
+## sql <- "SELECT cn1.Country cnn1, cn2.Country cnn2, cat1.Subcategory,
+## cat2.Subcategory, cor.*
+## FROM Correlations cor, Countries cn1, Countries cn2, Categories cat1,
+## Categories cat2
+## WHERE cor.Country1 = cn1.id_cn AND cor.Country2 = cn2.id_cn AND
+## cor.Category1 = cat1.id_cat AND cor.Category2 = cat2.id_cat AND cor.Corr = 1"
+## res <- dbSendQuery(con, sql)
+## fetch(res, n=2)
+## dbClearResult(res)
+
+## dbGetQuery(con, "DROP TABLE Correlations")
 
 
 
