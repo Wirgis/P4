@@ -36,7 +36,7 @@ data.raw$PerCap.Unit.PerHH <- NULL
 ## three options by measurement type: local, local Per Capita,
 ## local Per Household
 
-## tree data sets:
+## three data sets:
 ## 1: local;
 ## 2: local per capita;
 ## 3: local per household;
@@ -54,17 +54,9 @@ data.raw.PHH <- data.raw[, colnames(data.raw) %in%
 colnames(data.raw.PHH) [3:length(colnames(data.raw.PHH))]<- 1997:2011
 
 # remove rows which have all NA
-data.raw.loc.na <- which(apply(data.raw.loc[, -c(1, 2)], 1,
-                               function(x) all(is.na(x))))
-data.raw.loc <- data.raw.loc[-data.raw.loc.na, ]
-
-data.raw.PC.na <- which(apply(data.raw.PC[, -c(1, 2)], 1,
-                               function(x) all(is.na(x))))
-data.raw.PC <- data.raw.loc[-data.raw.PC.na, ]
-
-data.raw.PHH.na <- which(apply(data.raw.PHH[, -c(1, 2)], 1,
-                               function(x) all(is.na(x))))
-data.raw.PHH <- data.raw.loc[-data.raw.PHH.na, ]
+data.raw.loc <- ChangeNA(data.raw.loc)
+data.raw.PC <- ChangeNA(data.raw.PC)
+data.raw.PHH <- ChangeNA(data.raw.PHH)
 
 ## some strange cases
 check.na <- unique(which(is.na(data.raw.loc), arr.ind = T)[, 1])
@@ -80,20 +72,16 @@ check.na <- unique(which(is.na(data.raw.PHH), arr.ind = T)[, 1])
 data.raw.PHH <- data.raw.PHH[-check.na, ]
 
 ## remove all 0
-data.raw.loc.zero <- which(apply(data.raw.loc[, -c(1, 2)], 1,
-                                 function(x) all(x == 0)))
-data.raw.loc <- data.raw.loc[-data.raw.loc.zero, ]
-
-data.raw.PC.zero <- which(apply(data.raw.PC[, -c(1, 2)], 1,
-                               function(x) all(x == 0)))
-data.raw.PC <- data.raw.loc[-data.raw.PC.zero, ]
-
-data.raw.PHH.zero <- which(apply(data.raw.PHH[, -c(1, 2)], 1,
-                               function(x) all(x == 0)))
-data.raw.PHH <- data.raw.loc[-data.raw.PHH.zero, ]
-
+data.raw.loc <- ChangeZero(data.raw.loc)
+data.raw.PC <- ChangeZero(data.raw.PC)
+data.raw.PHH <- ChangeZero(data.raw.PHH)
 
 # make growth rates
 data.loc <- MakeGrowthRates(data.raw.loc, as.character(1997:2011))
 data.PC <- MakeGrowthRates(data.raw.PC, as.character(1997:2011))
 data.PHH <- MakeGrowthRates(data.raw.PHH, as.character(1997:2011))
+
+## replace Inf with NA
+data.loc <- ChangeInf(data.loc)
+data.PC <- ChangeInf(data.PC)
+data.PHH <- ChangeInf(data.PHH)

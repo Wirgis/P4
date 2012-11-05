@@ -91,24 +91,12 @@ data.raw.PHH.fix$Currency.Conversion <- NULL
 colnames(data.raw.PHH.fix) [3:length(colnames(data.raw.PHH.fix))]<- 1997:2011
 
 # remove rows which have all NA
-data.raw.flow.na <- which(apply(data.raw.flow[, -c(1, 2)], 1,
-                            function(x) all(is.na(x))))
-data.raw.flow <- data.raw.flow[-data.raw.flow.na, ]
-data.raw.fix.na <- which(apply(data.raw.fix[, -c(1, 2)], 1,
-                               function(x) all(is.na(x))))
-data.raw.fix <- data.raw.fix[-data.raw.fix.na, ]
-data.raw.PC.flow.na <- which(apply(data.raw.PC.flow[, -c(1, 2)], 1,
-                               function(x) all(is.na(x))))
-data.raw.PC.flow <- data.raw.PC.flow[-data.raw.PC.flow.na, ]
-data.raw.PC.fix.na <- which(apply(data.raw.PC.fix[, -c(1, 2)], 1,
-                               function(x) all(is.na(x))))
-data.raw.PC.fix <- data.raw.PC.fix[-data.raw.PC.fix.na, ]
-data.raw.PHH.flow.na <- which(apply(data.raw.PHH.flow[, -c(1, 2)], 1,
-                               function(x) all(is.na(x))))
-data.raw.PHH.flow <- data.raw.PHH.flow[-data.raw.PHH.flow.na, ]
-data.raw.PHH.fix.na <- which(apply(data.raw.PHH.fix[, -c(1, 2)], 1,
-                               function(x) all(is.na(x))))
-data.raw.PHH.fix <- data.raw.PHH.fix[-data.raw.PHH.fix.na, ]
+data.raw.flow <- ChangeNA(data.raw.flow)
+data.raw.fix <- ChangeNA(data.raw.fix)
+data.raw.PC.flow <- ChangeNA(data.raw.PC.flow)
+data.raw.PC.fix <- ChangeNA(data.raw.PC.fix)
+data.raw.PHH.flow <- ChangeNA(data.raw.PHH.flow)
+data.raw.PHH.fix <- ChangeNA(data.raw.PHH.fix)
 
 
 ## some strange cases
@@ -136,8 +124,17 @@ check.na <- unique(which(is.na(data.raw.PHH.fix), arr.ind = T)[, 1])
 ##data.raw.PHH.fix[check.na, ]
 data.raw.PHH.fix <- data.raw.PHH.fix[-check.na, ]
 
+## remove row with all zeros
+data.raw.flow <- ChangeZero(data.raw.flow)
+data.raw.fix <- ChangeZero(data.raw.fix)
+data.raw.PC.flow <- ChangeZero(data.raw.PC.flow)
+data.raw.PC.fix <- ChangeZero(data.raw.PC.fix)
+data.raw.PHH.flow <- ChangeZero(data.raw.PHH.flow)
+data.raw.PHH.fix <- ChangeZero(data.raw.PHH.fix)
 
-# make growth rates
+
+
+## make growth rates
 data.flow <- MakeGrowthRates(data.raw.flow, as.character(1997:2011))
 data.fix <- MakeGrowthRates(data.raw.fix, as.character(1997:2011))
 data.PC.flow <- MakeGrowthRates(data.raw.PC.flow, as.character(1997:2011))
@@ -145,5 +142,14 @@ data.PC.fix <- MakeGrowthRates(data.raw.PC.fix, as.character(1997:2011))
 data.PHH.flow <- MakeGrowthRates(data.raw.PHH.flow, as.character(1997:2011))
 data.PHH.fix <- MakeGrowthRates(data.raw.PHH.fix, as.character(1997:2011))
 
+## replace Inf with NA
+data.flow <- ChangeInf(data.flow)
+data.fix <- ChangeInf(data.fix)
+data.PC.flow <- ChangeInf(data.PC.flow)
+data.PC.fix <- ChangeInf(data.PC.fix)
+data.PHH.flow <- ChangeInf(data.PHH.flow)
+data.PHH.fix <- ChangeInf(data.PHH.fix)
 
-
+# remove rows which have all NA
+data.flow <- ChangeNA(data.flow)
+data.fix <- ChangeNA(data.fix)
