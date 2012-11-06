@@ -4,9 +4,11 @@
 *.RData
 *.Rproj
 
+# -- darbines direktorijos
+.Rproj.user
+
 # -- duomenys ir exceliniai failai nereikalingi
 *.xlsx
+*.docx
 Country.id.csv
 Category.id.csv
-
-

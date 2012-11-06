@@ -1,5 +1,8 @@
+rm(list=ls())
 library(reshape)
 library(foreach)
+
+source("Code/R.calc/10code.R")
 ## PIUSD.xlsx: US dollars, US dollars per capita, US dollars per household;
 ## currency conversion: fixed 2011 exchange rate, year-on-year exchange rate;
 pathPIUSD <- "data/rawdata/PIUSD.csv"
@@ -92,12 +95,13 @@ colnames(data.raw.PHH.fix) [3:length(colnames(data.raw.PHH.fix))]<- 1997:2011
 
 
 # make growth rates
+ptime <- proc.time()[3]
 data.flow <- MakeGrowthRates(data.raw.flow, as.character(1997:2011))
 data.fix <- MakeGrowthRates(data.raw.fix, as.character(1997:2011))
 data.PC.flow <- MakeGrowthRates(data.raw.PC.flow, as.character(1997:2011))
 data.PC.fix <- MakeGrowthRates(data.raw.PC.fix, as.character(1997:2011))
 data.PHH.flow <- MakeGrowthRates(data.raw.PHH.flow, as.character(1997:2011))
 data.PHH.fix <- MakeGrowthRates(data.raw.PHH.fix, as.character(1997:2011))
-
-
+ptime1 <- proc.time()[3] - ptime
+ptime1
 
