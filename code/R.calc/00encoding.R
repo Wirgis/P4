@@ -30,7 +30,7 @@ data.local$CategorySub <- data.local$id
 data.local$id <- NULL
 data.local$Category <- NULL
 data.local$Subcategory <- NULL
-data.local$Hierarchy.Level <- NULL
+#data.local$Hierarchy.Level <- NULL
 data.local <- data.local[, c("Country", "CategorySub",
                              colnames(data.local)[-c(1, dim(data.local)[2])])]
 write.csv(data.local, "data/rawdata/PIlocal.csv", row.names = FALSE)
@@ -45,7 +45,7 @@ data.usd$CategorySub <- data.usd$id
 data.usd$id <- NULL
 data.usd$Category <- NULL
 data.usd$Subcategory <- NULL
-data.usd$Hierarchy.Level <- NULL
+#data.usd$Hierarchy.Level <- NULL
 data.usd <- data.usd[, c("Country", "CategorySub",
                              colnames(data.usd)[-c(1, dim(data.usd)[2])])]
 write.csv(data.usd, "data/rawdata/PIUSD.csv", row.names = FALSE)

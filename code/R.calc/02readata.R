@@ -41,22 +41,22 @@ data.raw$PerCap.Unit.PerHH <- NULL
 ## 2: local per capita;
 ## 3: local per household;
 
-columns <- c("Country", "CategorySub")
+columns <- c("Country", "CategorySub", "Hierarchy.Level")
 
 data.raw.loc <- data.raw[, colnames(data.raw) %in% c(columns, 1997:2011)]
 
 data.raw.PC <- data.raw[, colnames(data.raw) %in%
                         c(columns, paste(1997:2011, "PerCap", sep = "."))]
-colnames(data.raw.PC) [3:length(colnames(data.raw.PC))]<- 1997:2011
+colnames(data.raw.PC) [(length(columns) + 1):length(colnames(data.raw.PC))]<- 1997:2011
 
 data.raw.PHH <- data.raw[, colnames(data.raw) %in%
                         c(columns, paste(1997:2011, "PerHH", sep = "."))]
-colnames(data.raw.PHH) [3:length(colnames(data.raw.PHH))]<- 1997:2011
+colnames(data.raw.PHH) [(length(columns) + 1):length(colnames(data.raw.PHH))]<- 1997:2011
 
 # remove rows which have all NA
-data.raw.loc <- ChangeNA(data.raw.loc)
-data.raw.PC <- ChangeNA(data.raw.PC)
-data.raw.PHH <- ChangeNA(data.raw.PHH)
+data.raw.loc <- RemoveNA(data.raw.loc)
+data.raw.PC <- RemoveNA(data.raw.PC)
+data.raw.PHH <- RemoveNA(data.raw.PHH)
 
 ## some strange cases
 check.na <- unique(which(is.na(data.raw.loc), arr.ind = T)[, 1])
@@ -72,9 +72,9 @@ check.na <- unique(which(is.na(data.raw.PHH), arr.ind = T)[, 1])
 data.raw.PHH <- data.raw.PHH[-check.na, ]
 
 ## remove all 0
-data.raw.loc <- ChangeZero(data.raw.loc)
-data.raw.PC <- ChangeZero(data.raw.PC)
-data.raw.PHH <- ChangeZero(data.raw.PHH)
+data.raw.loc <- RemoveZero(data.raw.loc)
+data.raw.PC <- RemoveZero(data.raw.PC)
+data.raw.PHH <- RemoveZero(data.raw.PHH)
 
 # make growth rates
 data.loc <- MakeGrowthRates(data.raw.loc, as.character(1997:2011))
