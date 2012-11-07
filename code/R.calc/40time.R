@@ -15,7 +15,7 @@ con <- dbConnect(drv, dbname = "output/R/test.sqlite")
 
 ## data
 test <- data.PC.flow[data.PC.flow$Country %in% c(1, 2), ]
-test.run <- as.matrix(na.omit(test))
+test.run <- as.matrix(test)
 indexes <- combn(1:dim(test.run)[1], 2)
 
 ##

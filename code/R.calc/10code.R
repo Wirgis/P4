@@ -15,15 +15,25 @@ ChangeInf <- function(data){
     data
 }
 
-ChangeZero <-  function(data){
-    data.zero <- which(apply(data[, -c(1, 2)], 1,
+RemoveZero <-  function(data){
+    data.zero <- which(apply(data[, -c(1, 2, 3)], 1,
                                       function(x) all(x == 0)))
     data <- data[-data.zero, ]
     data
 }
 
-ChangeNA <-  function(data){
-    data.na <- which(apply(data[, -c(1, 2)], 1,
+RemoveNA <-  function(data){
+    data.na <- which(apply(data[, -c(1, 2, 3)], 1,
                            function(x) all(is.na(x))))
     data[-data.na, ]
 }
+
+SetLayout <- function(ncol, nrow){
+  Layout <- grid.layout(nrow = nrow, ncol = ncol,
+                        widths = unit(rep(1, ncol),
+                                      rep("null", (ncol + 1))))
+  grid.newpage()
+  pushViewport(viewport(layout = Layout))
+}
+
+subplot <- function(x, y) viewport(layout.pos.row = x, layout.pos.col = y)
