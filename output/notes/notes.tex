@@ -1,0 +1,138 @@
+\documentclass[a4paper]{article}
+\usepackage{ucs}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\title{P4 notes}
+\author{Andrius Dalinkevi\v cius}
+\usepackage{float}
+\usepackage{rotating}
+\usepackage[pdftex,bookmarks=TRUE]{hyperref}
+\usepackage{float}
+\usepackage{rotating}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{theorem}
+\usepackage{calc}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage{bm}
+\oddsidemargin=0cm
+\topmargin=0cm
+\headsep=0pt
+\headheight=0pt
+\textwidth=440pt
+\textheight=670pt
+\footskip=40pt
+
+\begin{document}
+
+\maketitle
+
+This is the notes of the P4 task.
+
+\section{Data}
+There are two raw files with industrial production data:
+'PIlocal.xlsx' and 'PIUSD.xlsx'. The first one contains observations
+expressed in local currency, the second one - USD dollars: historic
+fixed 2011 exchange rate and year on year exchange rate. Variations:
+total, per capita and per household.
+
+\subsection{Preparations}
+
+\begin{enumerate}
+\item Encoding. 'Country', 'Category' and 'Subcategory' columns were
+  encoded. The ids and original names are saved in 'Country.id.csv'
+  and 'Category.id.csv'. The script for this: '00encoding.R'.
+
+\item Processing.
+  \begin{itemize}
+    \item Removal of unnecessary information(columns).
+    \item Removal of rows which have all NA over the sample period.
+    \item Removal of rows which have all zeros over the sample period.
+    \item Making growth rates.
+    \item Replacing Inf with NA.
+  \end{itemize}
+
+  Two scripts for data processing:
+
+\item '01readata.R'. Objects:
+  \begin{itemize}
+    \item 'data.flow' - USD millions, year-on-year exchange rate.
+    \item 'data.fix' - USD millions, fixed 2011 exchange rate.
+    \item 'data.PC.flow' - USD per capita, year-on-year exchange rate.
+    \item 'data.PC.fix' - USD per capita, fixed 2011 exchange rate.
+    \item 'data.PHH.flow' - USD per household, year-on-year exchange rate.
+    \item 'data.PHH.fix' - USD per household, fixed 2011 exchange rate.
+  \end{itemize}
+
+\item '02readata.R'. Objects:
+  \begin{itemize}
+    \item 'data.loc' - local currency millions.
+    \item 'data.PC' - local currency per capita.
+    \item 'data.PHH' - local currency per household.
+  \end{itemize}
+\end{enumerate}
+
+\section{Testing}
+\begin{itemize}
+\item Initial data base. The script '30initDB.R' creates initial data
+  base, 'P4.sqlite', with two tables: one for countries, other for
+  categories. Each table contains two columns with ids and original
+  names.
+\item Testing the code for the insertion of correlations into
+  database. Each code version was tested on 10000 insertions,
+  sequentially. The time expressed in seconds:
+  \begin{itemize}
+    \item[-] Using a data.frame in the cycle vs without it: 126 vs
+      94.
+    \item[-] The Kendall function vs the cor function: 94 vs 84.
+  \end{itemize}
+The the code version using the cor function and inserting without
+creating a data.frame works faster so far. The code for this is in '40time.R'.
+
+\item Some explorations:
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics{"Entire_data_frame"}
+\caption{All}
+\label{fig:2}
+\end{center}
+\end{figure}
+
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics{"Japan"}
+\caption{One country}
+\label{fig:2}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics{"Industry"}
+\caption{One industry}
+\label{fig:2}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics{"JapanSample"}
+\caption{One Country, sample: 1000, 3000, 5000, 20000, 50000}
+\label{fig:2}
+\end{center}
+\end{figure}
+
+
+
+\end{itemize}
+
+
+
+\end{document}
+
+
+
