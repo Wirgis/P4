@@ -3,6 +3,7 @@
 *.Rhistory
 *.RData
 *.Rproj
+*.sqlite
 
 # -- darbines direktorijos
 .Rproj.user
