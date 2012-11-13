@@ -58,7 +58,7 @@ data.raw$PerCap.Unit.PerHH <- NULL
 ## 5: US per household, year on year exchange rate;
 ## 6: US per household, fixed 2011 exchange rate;
 
-columns <- c("Country", "CategorySub", "Subcategory", "Currency.Conversion")
+columns <- c("Country", "CategorySub", "Hierarchy.Level", "Currency.Conversion")
 
 
 data.raw.million <- data.raw[, colnames(data.raw) %in% c(columns, 1997:2011)]
@@ -75,11 +75,11 @@ data.raw.percap <- data.raw[, colnames(data.raw) %in%
 data.raw.PC.flow <- data.raw.percap[data.raw.percap$Currency.Conversion ==
                                     "year.on.year.exch", ]
 data.raw.PC.flow$Currency.Conversion <- NULL
-colnames(data.raw.PC.flow) [3:length(colnames(data.raw.PC.flow))]<- 1997:2011
+colnames(data.raw.PC.flow) [length(columns):length(colnames(data.raw.PC.flow))]<- 1997:2011
 data.raw.PC.fix <- data.raw.percap[data.raw.percap$Currency.Conversion ==
                                     "fixed.2011", ]
 data.raw.PC.fix$Currency.Conversion <- NULL
-colnames(data.raw.PC.fix) [3:length(colnames(data.raw.PC.fix))]<- 1997:2011
+colnames(data.raw.PC.fix) [length(columns):length(colnames(data.raw.PC.fix))]<- 1997:2011
 
 
 data.raw.perHH <- data.raw[, colnames(data.raw) %in%
@@ -87,12 +87,53 @@ data.raw.perHH <- data.raw[, colnames(data.raw) %in%
 data.raw.PHH.flow <- data.raw.perHH[data.raw.perHH$Currency.Conversion ==
                                     "year.on.year.exch", ]
 data.raw.PHH.flow$Currency.Conversion <- NULL
-colnames(data.raw.PHH.flow) [3:length(colnames(data.raw.PHH.flow))]<- 1997:2011
+colnames(data.raw.PHH.flow) [length(columns):length(colnames(data.raw.PHH.flow))]<- 1997:2011
 data.raw.PHH.fix <- data.raw.perHH[data.raw.perHH$Currency.Conversion ==
                                    "fixed.2011", ]
 data.raw.PHH.fix$Currency.Conversion <- NULL
-colnames(data.raw.PHH.fix) [3:length(colnames(data.raw.PHH.fix))]<- 1997:2011
+colnames(data.raw.PHH.fix) [length(columns):length(colnames(data.raw.PHH.fix))]<- 1997:2011
 
+# remove rows which have all NA
+data.raw.flow <- RemoveNA(data.raw.flow)
+data.raw.fix <- RemoveNA(data.raw.fix)
+data.raw.PC.flow <- RemoveNA(data.raw.PC.flow)
+data.raw.PC.fix <- RemoveNA(data.raw.PC.fix)
+data.raw.PHH.flow <- RemoveNA(data.raw.PHH.flow)
+data.raw.PHH.fix <- RemoveNA(data.raw.PHH.fix)
+
+
+## some strange cases
+check.na <- unique(which(is.na(data.raw.flow), arr.ind = T)[, 1])
+## data.raw.flow[check.na, ]
+data.raw.flow <- data.raw.flow[-check.na, ]
+
+check.na <- unique(which(is.na(data.raw.fix), arr.ind = T)[, 1])
+## data.raw.fix[check.na, ]
+data.raw.fix <- data.raw.fix[-check.na, ]
+
+check.na <- unique(which(is.na(data.raw.PC.flow), arr.ind = T)[, 1])
+##data.raw.PC.flow[check.na, ]
+data.raw.PC.flow <- data.raw.PC.flow[-check.na, ]
+
+check.na <- unique(which(is.na(data.raw.PC.fix), arr.ind = T)[, 1])
+##data.raw.PC.fix[check.na, ]
+data.raw.PC.fix <- data.raw.PC.fix[-check.na, ]
+
+check.na <- unique(which(is.na(data.raw.PHH.flow), arr.ind = T)[, 1])
+##data.raw.PHH.flow[check.na, ]
+data.raw.PHH.flow <- data.raw.PHH.flow[-check.na, ]
+
+check.na <- unique(which(is.na(data.raw.PHH.fix), arr.ind = T)[, 1])
+##data.raw.PHH.fix[check.na, ]
+data.raw.PHH.fix <- data.raw.PHH.fix[-check.na, ]
+
+## remove row with all zeros
+data.raw.flow <- RemoveZero(data.raw.flow)
+data.raw.fix <- RemoveZero(data.raw.fix)
+data.raw.PC.flow <- RemoveZero(data.raw.PC.flow)
+data.raw.PC.fix <- RemoveZero(data.raw.PC.fix)
+data.raw.PHH.flow <- RemoveZero(data.raw.PHH.flow)
+data.raw.PHH.fix <- RemoveZero(data.raw.PHH.fix)
 
 # make growth rates
 ptime <- proc.time()[3]
@@ -105,3 +146,14 @@ data.PHH.fix <- MakeGrowthRates(data.raw.PHH.fix, as.character(1997:2011))
 ptime1 <- proc.time()[3] - ptime
 ptime1
 
+## replace Inf with NA
+data.flow <- ChangeInf(data.flow)
+data.fix <- ChangeInf(data.fix)
+data.PC.flow <- ChangeInf(data.PC.flow)
+data.PC.fix <- ChangeInf(data.PC.fix)
+data.PHH.flow <- ChangeInf(data.PHH.flow)
+data.PHH.fix <- ChangeInf(data.PHH.fix)
+
+# remove rows which have all NA
+data.flow <- RemoveNA(data.flow)
+data.fix <- RemoveNA(data.fix)
