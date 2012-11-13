@@ -1,5 +1,8 @@
+rm(list=ls())
 library(reshape)
 library(foreach)
+
+source("Code/R.calc/10code.R")
 ## PIUSD.xlsx: US dollars, US dollars per capita, US dollars per household;
 ## currency conversion: fixed 2011 exchange rate, year-on-year exchange rate;
 pathPIUSD <- "data/rawdata/PIUSD.csv"
@@ -27,10 +30,10 @@ data.raw$Current.Constant <- NULL
 ## Currency Conversion
 data.raw$Currency.Conversion <- as.character(data.raw$Currency.Conversion)
 data.raw$Currency.Conversion <- gsub(" ", ".", data.raw$Currency.Conversion)
-data.raw$Currency.Conversion <- gsub("Historic.Year-on-Year.Exchange.Rates,.Forecast.Year-on-Year.Exchange.Rates",
+data.raw$Currency.Conversion <- gsub(unique(data.raw$Currency.Conversion)[1],
                                      "year.on.year.exch",
                                      data.raw$Currency.Conversion)
-data.raw$Currency.Conversion <- gsub("Historic.Fixed.2011.Exchange.Rates,.Forecast.Fixed.2011.Exchange.Rates",
+data.raw$Currency.Conversion <- gsub(unique(data.raw$Currency.Conversion)[2],
                                      "fixed.2011",
                                      data.raw$Currency.Conversion)
 
@@ -132,15 +135,16 @@ data.raw.PC.fix <- RemoveZero(data.raw.PC.fix)
 data.raw.PHH.flow <- RemoveZero(data.raw.PHH.flow)
 data.raw.PHH.fix <- RemoveZero(data.raw.PHH.fix)
 
-
-
-## make growth rates
+# make growth rates
+ptime <- proc.time()[3]
 data.flow <- MakeGrowthRates(data.raw.flow, as.character(1997:2011))
 data.fix <- MakeGrowthRates(data.raw.fix, as.character(1997:2011))
 data.PC.flow <- MakeGrowthRates(data.raw.PC.flow, as.character(1997:2011))
 data.PC.fix <- MakeGrowthRates(data.raw.PC.fix, as.character(1997:2011))
 data.PHH.flow <- MakeGrowthRates(data.raw.PHH.flow, as.character(1997:2011))
 data.PHH.fix <- MakeGrowthRates(data.raw.PHH.fix, as.character(1997:2011))
+ptime1 <- proc.time()[3] - ptime
+ptime1
 
 ## replace Inf with NA
 data.flow <- ChangeInf(data.flow)

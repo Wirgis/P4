@@ -3,10 +3,15 @@
 *.Rhistory
 *.RData
 *.Rproj
+*.sqlite
+
+# -- darbines direktorijos
+.Rproj.user
 
 # -- duomenys ir exceliniai failai nereikalingi
 *.xlsx
+*.docx
 Country.id.csv
 Category.id.csv
-
-
+PIlocal_private.csv
+P4.sqlite
