@@ -27,7 +27,9 @@ data <- data.loc
 
 ######### Choose a hierarchy level you need;
 #unique(data$Hierarchy.Level)
-data <- as.matrix(data[data$Hierarchy.Level == 4, ])
+data <- data[data$Hierarchy.Level == 4, ]
+data$Hierarchy.Level <- NULL
+data <- as.matrix(data)
 
 ######### Create the initial DB with two tables: Countries and Categories.
 # Source this script only if you don't have P4.sqlite file in the
@@ -74,8 +76,8 @@ range2 <- 1
 
 ######### The cycle for inserting correlations. This is doing sequentially.
 foreach(i = 1:dim(indexes)[2]) %do%{
-    cor <- cor(data[indexes[, i][1], -c(1, 2)],
-               data[indexes[, i][2], -c(1, 2)], method = "kendall",
+    cor <- cor(data[indexes[, i][1], -c(1:2)],
+               data[indexes[, i][2], -c(1:2)], method = "kendall",
                use = "complete.obs")
     if(range1 <= abs(cor) & abs(cor) <= range2) {
         sql <- paste(sql.base, "(",paste(data[indexes[, i][1], "Country"],
