@@ -129,8 +129,20 @@ creating a data.frame works faster so far. The code for this is in '40time.R'.
 \end{figure}
 
 \subsection{Correlation matrices, corrplot, within country}
-Here 'corrplot' package for sorting and visualising matrices was
-used. Four sorting methods were used:
+In this subsection within country correlations are inspected. The data
+is of the hierarchy level 4 and 3 countries were selected randomly. It
+includes:
+
+\begin{itemize}
+\item Australia
+\item Canada
+\item India
+\end{itemize}
+
+The 'corrplot' package was used for sorting and visualizing
+correlation matrices. The output of the four sorting methods are
+depicted, for more details about sorting methods see ?corrMatOrder:
+
 \begin{itemize}
 \item "AOE" -  The angular order of the eigenvectors.
 \item "FPC" - The first principal component order.
@@ -242,25 +254,19 @@ used. Four sorting methods were used:
 \end{center}
 \end{figure}
 
-\subsection{Correlation matrices,  RBGL,  across countries}
-Here RBGL package was used. There were three functions for sorting
-matrices tested:
-\begin{itemize}
-\item cuthill.mckee.ordering.
-\item minDegreeOrdering.
-\item sloan.ordering.
-\end{itemize}
-
-Graphical results were very 'similar' so only output from the cuthill.mckee.ordering function are presented. In order to choose
-countries to inspect, correlations of category "Industrial (Entire
-Economy)" were depicted. Three country pairs were chosen:
+\subsection{Correlation matrices,  RBGL,  cross countries}
+In this subsection cross country correlation are inspected. The
+hierarchy level of a data is 4. In order to choose
+country pairs, correlations of the category "Industrial (Entire
+Economy)" were depicted below. Names of rows and columns represent
+country and category, for example "17 1"  means country - 17 and
+category - 1. Three country pairs were chosen:
 
 \begin{itemize}
-\item Germany - UK.
-\item Germany - France.
-\item Germany - Italy.
+\item Germany(6) - UK(17).
+\item Germany(6) - France(5).
+\item Germany(6) - Italy(9).
 \end{itemize}
-
 
 \begin{figure}[H]
 \begin{center}
@@ -269,6 +275,16 @@ Economy)" were depicted. Three country pairs were chosen:
 \label{fig:2}
 \end{center}
 \end{figure}
+
+
+The RBGL package was used for sorting. There are three functions available:
+\begin{itemize}
+\item cuthill.mckee.ordering.
+\item minDegreeOrdering.
+\item sloan.ordering.
+\end{itemize}
+
+Graphical results were very 'similar' so only output from the cuthill.mckee.ordering function are presented.
 
 \begin{figure}[H]
 \begin{center}
