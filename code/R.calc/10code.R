@@ -78,3 +78,93 @@ InsertCorr2 <- function(data1, data2, sql.base, con, range1, range2){
         }
     }
 }
+
+CorrMatWithin <- function(con, cn, table, level, hierarchy, range1, range2,
+                          RBGL = NULL, corrplot = NULL, hclust.method = NULL,){
+    ## categories which match the given hierarchy level
+    cat <- hierarchy[hierarchy$Hierarchy.Level == level, "CategorySub"]
+
+    ## form a query to select appropriate rows according to the specified
+    ## hierarchy level and a country
+    sql.cat <- paste(cat, collapse = ",")
+    sql <- paste("SELECT * FROM", table, "WHERE Category1 IN","(", sql.cat, ")",
+                 "AND Category2 IN ", "(", sql.cat, ")", "AND Country1 = ", cn,
+                 "AND Country2 = ", cn)
+
+    ## take the data
+    data <- dbGetQuery(con, sql)
+
+    ## assign zero for correlations in [range1, range2]
+    data[range1 <= abs(data$Corr) & abs(data$Corr) <= range2, "Corr"] <- 0
+
+    ## form a matrix and a graph
+    from <- paste(data[, "Country1"], data[, "Category1"])
+    to <- paste(data[, "Country2"], data[, "Category2"])
+    weights <-  data[, "Corr"]
+
+    g <- ftM2graphNEL(cbind(from, to), edgemode = "undirected", W = weights)
+    g.matrix <- as(g, "matrix")
+
+    ord <- if(!is.null(RBGL))
+        switch(RBGL,
+               cuthill.mckee.ordering = cuthill.mckee.ordering(g)$`reverse cuthill.mckee.ordering`,
+               sloan.ordering = minDegreeOrdering(g)$inverse_permutation,
+               minDegreeOrdering = sloan.ordering(g)$sloan.ordering)
+
+    else
+        switch(corrplot,
+               AOE = corrMatOrder(g.matrix, order = "AOE"),
+               FPC = corrMatOrder(g.matrix, order = "FPC"),
+               hclust = corrMatOrder(g.matrix, order = "hclust",
+               hclust.method = hclust.method))
+    matrix.ord <- g.matrix[ord, ord]
+
+    ## colours
+    pal <- colorRampPalette(c("red", "yellow"), space = "rgb")
+
+    levelplot(matrix.ord, main = paste("Country", cn), xlab="", ylab="",
+              col.regions=pal(100), cuts = 99)
+}
+
+CorrMatBetween <- function(con, cn1, cn2, table, level, hierarchy,
+                           range1, range2, RBGL = c("cuthill.mckee.ordering",
+                                           "sloan.ordering",
+                                           "minDegreeOrdering")){
+    ## categories which match the given hierarchy level
+    cat <- hierarchy[hierarchy$Hierarchy.Level == level, "CategorySub"]
+
+    ## form a query to select appropriate rows according to the specified
+    ## hierarchy level and a country
+    sql.cat <- paste(cat, collapse = ",")
+    sql <- paste("SELECT * FROM", table, "WHERE Category1 IN","(", sql.cat, ")",
+                 "AND Category2 IN ", "(", sql.cat, ")", "AND Country1 = ", cn1,
+                 "AND Country2 = ", cn2)
+
+    ## take the data
+    data <- dbGetQuery(con, sql)
+
+    ## assign zero for correlations in [range1, range2]
+    data[range1 <= abs(data$Corr) & abs(data$Corr) <= range2, "Corr"] <- 0
+
+    ## form a matrix and a graph
+    from <- paste(data[, "Country1"], data[, "Category1"])
+    to <- paste(data[, "Country2"], data[, "Category2"])
+    weights <-  data[, "Corr"]
+
+    g <- ftM2graphNEL(cbind(from, to), edgemode = "directed", W = weights)
+    g.matrix <- as(g, "matrix")
+
+    ord <- switch(RBGL,
+                  cuthill.mckee.ordering = cuthill.mckee.ordering(g)$`reverse cuthill.mckee.ordering`,
+                  sloan.ordering = minDegreeOrdering(g)$inverse_permutation,
+                  minDegreeOrdering = sloan.ordering(g)$sloan.ordering)
+
+    matrix.ord <- g.matrix[ord, ord]
+
+    ## colours
+    pal <- colorRampPalette(c("red", "yellow"), space = "rgb")
+
+    levelplot(matrix.ord, main = paste("Country", cn), xlab="", ylab="",
+              col.regions=pal(100), cuts = 99)
+}
+
