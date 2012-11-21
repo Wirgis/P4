@@ -80,7 +80,7 @@ InsertCorr2 <- function(data1, data2, sql.base, con, range1, range2){
 }
 
 CorrMatWithin <- function(con, cn, table, level, hierarchy, range1, range2,
-                          RBGL = NULL, corrplot = NULL, hclust.method = NULL,){
+                          RBGL = NULL, corrplot = NULL, hclust.method = NULL){
     ## categories which match the given hierarchy level
     cat <- hierarchy[hierarchy$Hierarchy.Level == level, "CategorySub"]
 
