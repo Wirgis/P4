@@ -168,3 +168,67 @@ CorrMatBetween <- function(con, cn1, cn2, table, level, hierarchy,
               col.regions=pal(100), cuts = 99)
 }
 
+MaxSelect <- function(con, node = c("Country" = 1, "Category" = 1), n = 10,
+                      table = "Correlations", same.country = TRUE){
+
+    if(!same.country){
+        sql1 <- paste("SELECT * FROM", table , "WHERE Country1 = ",
+                     node["Country"], "AND Category1 = ", node["Category"],
+                     "OR Country2 != ", node["Country"], "AND Category2 = ",
+                     node["Category"], "ORDER BY abs(Corr) Desc limit", n)
+        which1 <- dbGetQuery(con, sql1)
+
+        sql2 <- paste("SELECT * FROM", table , "WHERE Country1 != ",
+                     node["Country"], "AND Category1 = ", node["Category"],
+                     "OR Country2 = ", node["Country"], "AND Category2 = ",
+                     node["Category"], "ORDER BY abs(Corr) Desc limit", n)
+        which2 <- dbGetQuery(con, sql2)
+
+        which <- rbind(which1, which2)
+        which <- tail(sort_df(which, vars = "Corr"), n)
+
+    } else {
+        sql <- paste("SELECT * FROM", table , "WHERE Country1 = ",
+                     node["Country"], "AND Category1 = ", node["Category"],
+                     "OR Country2 = ", node["Country"], "AND Category2 = ",
+                     node["Category"], "ORDER BY abs(Corr) Desc limit", n)
+        which <- dbGetQuery(con, sql)
+    }
+
+    cat1 <- which[, "Category1"]
+    cat2 <- which[, "Category2"]
+    cn1 <- which[, "Country1"]
+    cn2 <- which[, "Country2"]
+
+    data <- c()
+    for(i in 1:dim(which)[1]){
+        sql <- paste("SELECT * FROM", table, "WHERE Category1 = ", cat1[i],
+                     "AND Category2 = ", cat2[i], "AND Country1 = ", cn1[i],
+                     "AND Country2 = ", cn2[i])
+        data <- rbind(data, dbGetQuery(con, sql))
+    }
+    data
+}
+
+GraphOne <- function(con, node, n = 10, table, edge.labels = FALSE,
+                     minimum = 0, center = TRUE, same.country = TRUE){
+    data <- MaxSelect(con = con, node = node, n = n, table = table,
+                      same.country = same.country)
+
+    from <- paste(data[, "Country1"], data[, "Category1"])
+    to <- paste(data[, "Country2"], data[, "Category2"])
+
+    data.new <- data.frame(from, to, Corr = data[, "Corr"])
+
+    if(center){
+        target <- paste(node, collapse = " ")
+        other <- unique(c(from, to))
+        id <- which(target == other)
+        groups <- list(target = id,
+                       other = c(1:(n + 1))[-id])
+        qgraph(data.new, directed = FALSE, edge.labels = edge.labels,
+               groups = groups, minimum = minimum, layout = "spring")
+    } else
+        qgraph(data.new, directed = FALSE, edge.labels = edge.labels,
+               minimum = minimum, layout = "circular", groups = groups)
+}
