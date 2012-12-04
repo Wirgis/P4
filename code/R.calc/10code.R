@@ -232,3 +232,41 @@ GraphOne <- function(con, node, n = 10, table, edge.labels = FALSE,
         qgraph(data.new, directed = FALSE, edge.labels = edge.labels,
                minimum = minimum, layout = "circular", groups = groups)
 }
+
+Mygexf <- function(con, sql, output){
+    ## extract info from database
+    data <- dbGetQuery(con, sql)
+
+    ## nodes
+    from <- paste(data[, "Country1"], data[, "Category1"])
+    to <- paste(data[, "Country2"], data[, "Category2"])
+    unique.nodes <- unique(c(from, to))
+    n.nodes <- length(unique.nodes)
+    nodes <- matrix(c(1:n.nodes, unique.nodes), ncol = 2)
+
+    ## edges
+    edges <- matrix(c(sapply(from, function(x) which(x == nodes[, 2])),
+                      sapply(to, function(x) which(x == nodes[, 2]))),
+                    ncol = 2)
+
+    ## add weights
+    weights <- matrix(data[, "Corr"], ncol = 1)
+    first <- gexf(nodes, edges, defaultedgetype = "undirected")
+    gext.text <- strsplit(as.character(first), split = "\n")[[1]]
+
+    id <- whichEdges(gext.text)
+
+    for(i in 1:length(id)){
+        gext.text[id[i]] <- paste(strsplit(gext.text[id[i]], split = "/>")[[1]],
+                             "weight = ", '"',  weights[i, 1], '"', "/>")
+    }
+    cat(gext.text, file = output)
+}
+
+whichEdges <- function(x){
+    start <- grep("<edges>", test)
+    end <- grep("</edges>", test)
+    c((start + 1): (end - 1))
+}
+
+
