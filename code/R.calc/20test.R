@@ -82,19 +82,18 @@ foreach(i = 1:dim(indexes)[2]) %do%{
 ## library(cluster)
 ## library(hexbin)
 
-## g <- ggobi(iris)
-## clustering <- hclust(dist(iris[,1:4]),
-## method="average")
-## glyph_colour(g[1]) <- cutree(clustering, 3)
+library(rggobi)
+g <- ggobi(iris)
+clustering <- hclust(dist(iris[,1:4]),
+method="average")
+glyph_colour(g[1]) <- cutree(clustering, 3)
 
+g <- ggobi(mtcars)
+display(g[1], vars=list(X=4, Y=5))
+display(g[1], vars=list(X="drat", Y="hp"))
+display(g[1], "Parallel Coordinates Display")
+display(g[1], "2D Tour")
 
-
-## g <- ggobi(mtcars)
-## display(g[1], vars=list(X=4, Y=5))
-
-
-## hierarchy <- read.csv("data/rawdata/hierarchy.csv")
-## level <- 4
 
 
 
