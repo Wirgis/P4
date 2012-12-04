@@ -244,29 +244,37 @@ Mygexf <- function(con, sql, output){
     n.nodes <- length(unique.nodes)
     nodes <- matrix(c(1:n.nodes, unique.nodes), ncol = 2)
 
-    ## edges
+    ## ## edges
     edges <- matrix(c(sapply(from, function(x) which(x == nodes[, 2])),
                       sapply(to, function(x) which(x == nodes[, 2]))),
                     ncol = 2)
 
-    ## add weights
+    ## ## add weights
     weights <- matrix(data[, "Corr"], ncol = 1)
-    first <- gexf(nodes, edges, defaultedgetype = "undirected")
-    gext.text <- strsplit(as.character(first), split = "\n")[[1]]
 
-    id <- whichEdges(gext.text)
+    ## graph
+    g <- xmlNode("graph", attrs = c(defaultedgetype="undirected",
+                          idtype="string", type="static"))
 
-    for(i in 1:length(id)){
-        gext.text[id[i]] <- paste(strsplit(gext.text[id[i]], split = "/>")[[1]],
-                             "weight = ", '"',  weights[i, 1], '"', "/>")
+    ## nodes
+    g$children[[1]] <- xmlNode("nodes")
+
+    for(i in 1:dim(nodes)[1]){
+        g$children[[1]][[i]] <- xmlNode("node", attrs = c(id = nodes[i, 1],
+                                                label = nodes[i, 2]))
     }
-    cat(gext.text, file = output)
-}
 
-whichEdges <- function(x){
-    start <- grep("<edges>", x)
-    end <- grep("</edges>", x)
-    c((start + 1): (end - 1))
+    ## edges
+    g$children[[2]] <- xmlNode("edges")
+    for(i in 1:dim(edges)[1]){
+        g$children[[2]][[i]] <- xmlNode("edge", attrs = c(source = edges[i, 1],
+                                                target = edges[i, 2],
+                                                weight = weights[i]))
+    }
+
+    sink(output)
+    print(g)
+    sink()
 }
 
 
