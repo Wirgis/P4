@@ -264,8 +264,8 @@ Mygexf <- function(con, sql, output){
 }
 
 whichEdges <- function(x){
-    start <- grep("<edges>", test)
-    end <- grep("</edges>", test)
+    start <- grep("<edges>", x)
+    end <- grep("</edges>", x)
     c((start + 1): (end - 1))
 }
 
