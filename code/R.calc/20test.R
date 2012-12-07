@@ -3,6 +3,7 @@ library(doParallel)
 library(RSQLite)
 library(ggplot2)
 library(grid)
+library(lattice)
 
 ## source code
 source("code/R.calc/10code.R")
@@ -13,6 +14,7 @@ source("code/R.calc/02readata.R") # local currency
 
 ## set hierarchy level
 data <- data.loc[data.loc$Hierarchy.Level == 4, ]
+data$Hierarchy.Level <- NULL
 
 ## create the initial DB with two tables: Countries and Categories. Files needed
 ## data/rawdata/EMI_private/Country.id.csv and
@@ -31,17 +33,26 @@ con <- dbConnect(drv, dbname = "output/R/P4.sqlite")
 ## Category1 SMALLINT, Country2 SMALLINT, Category2 SMALLINT, Corr NUMERIC(1,2))")
 
 ##
-test.run <- as.matrix(data)
-indexes <- combn(1:dim(test.run)[1], 2)
+test.run <- data[data$Country == 1, ]
+test.run <- as.matrix(test.run)
+interest <- sample(test.run[, "CategorySub"], 218)
+ind <- combn(interest, 2)
+indexes <- apply(ind, 2, function(x)
+                 c(which(test.run[, "CategorySub"] == x[1]),
+                   which(test.run[, "CategorySub"] == x[2])))
+
+#indexesexes <- combn(1:dim(test.run)[1], 2)
+
+dbGetQuery(con, "DELETE from Correlations")
 
 sql.base <- "INSERT INTO Correlations ('Country1', 'Category1', 'Country2',
 'Category2', 'Corr') VALUES "
 
-range1 <- 0.25
+range1 <- 0
 range2 <- 1
 
 #foreach(i = 1:dim(indexes)[2]) %do%{
-foreach(i = 1:100) %do%{
+foreach(i = 1:dim(indexes)[2]) %do%{
     cor <- cor(test.run[indexes[, i][1], -c(1, 2)],
                test.run[indexes[, i][2], -c(1, 2)], method = "kendall",
                use = "complete.obs")
@@ -58,45 +69,31 @@ foreach(i = 1:100) %do%{
     }
 }
 
-## dbGetQuery(con, "SELECT * from Correlations")
 
-## # graph
-## library("graph")
-## library("RBGL")
-## library("Rgraphviz")
-
-
-## try <- dbGetQuery(con, "SELECT * from Correlations limit 10")
-
-## from <- paste(try[, "Country1"], try[, "Category1"])
-## to <- paste(try[, "Country2"], try[, "Category2"])
-## W <-  try[, "Corr"]
-
-## ft <- cbind(from, to)
-## g <- ftM2graphNEL(ft, edgemode = "undirected", W = W)
-
-## nodes(g)
-## edges(g)
-## adj(g, "1 601")
-## degree(g)
-## acc(g, "1 601")
-
-## as(g, "matrix")
+## ## neblogai
+## library("qgraph")
+## data(big5)
+## data(big5groups)
+## qgraph(cor(big5),minimum=0.25,cut=0.4,vsize=2,groups=big5groups,legend=TRUE,borders=FALSE)
+## title("Big 5 correlations",line=-2,cex.main=2)
 
 
-## ## sparse matrix ordering
-## a <- cuthill.mckee.ordering(g)
-## as(g, "matrix")[rev(a[[1]]), rev(a[[1]])]
+## library(gclus)
+## library(cluster)
+## library(hexbin)
 
-## b <- minDegreeOrdering(g)
-## as(g, "matrix")[b[[1]], b[[1]]]
+library(rggobi)
+g <- ggobi(iris)
+clustering <- hclust(dist(iris[,1:4]),
+method="average")
+glyph_colour(g[1]) <- cutree(clustering, 3)
 
-## c <- sloan.ordering(g)
-## as(g, "matrix")[c[[1]], c[[1]]]
+g <- ggobi(mtcars)
+display(g[1], vars=list(X=4, Y=5))
+display(g[1], vars=list(X="drat", Y="hp"))
+display(g[1], "Parallel Coordinates Display")
+display(g[1], "2D Tour")
 
-
-## ## betweenness centrality and clustering
-## betweenness.centrality.clustering(g)
 
 
 
