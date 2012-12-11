@@ -174,13 +174,13 @@ MaxSelect <- function(con, node = c("Country" = 1, "Category" = 1), n = 10,
     if(!same.country){
         sql1 <- paste("SELECT * FROM", table , "WHERE Country1 = ",
                      node["Country"], "AND Category1 = ", node["Category"],
-                     "OR Country2 != ", node["Country"], "AND Category2 = ",
-                     node["Category"], "ORDER BY abs(Corr) Desc limit", n)
+                     "AND Country2 != ", node["Country"],
+                      "ORDER BY abs(Corr) Desc limit", n)
         which1 <- dbGetQuery(con, sql1)
 
         sql2 <- paste("SELECT * FROM", table , "WHERE Country1 != ",
-                     node["Country"], "AND Category1 = ", node["Category"],
-                     "OR Country2 = ", node["Country"], "AND Category2 = ",
+                     node["Country"],
+                     "AND Country2 = ", node["Country"], "AND Category2 = ",
                      node["Category"], "ORDER BY abs(Corr) Desc limit", n)
         which2 <- dbGetQuery(con, sql2)
 
@@ -260,6 +260,7 @@ Mygexf <- function(con, sql, output){
     g$children[[1]] <- xmlNode("nodes")
 
     for(i in 1:dim(nodes)[1]){
+        print(i)
         g$children[[1]][[i]] <- xmlNode("node", attrs = c(id = nodes[i, 1],
                                                 label = nodes[i, 2]))
     }
@@ -267,6 +268,7 @@ Mygexf <- function(con, sql, output){
     ## edges
     g$children[[2]] <- xmlNode("edges")
     for(i in 1:dim(edges)[1]){
+        print(i)
         g$children[[2]][[i]] <- xmlNode("edge", attrs = c(source = edges[i, 1],
                                                 target = edges[i, 2],
                                                 weight = weights[i]))

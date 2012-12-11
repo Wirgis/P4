@@ -7,7 +7,6 @@ source("code/R.calc/10code.R")
 drv <- SQLite()
 con <- dbConnect(drv, dbname = "output/R/P4.sqlite")
 
-
 ######### Graph that has one target node and n nodes with highest correlations
 ###
 ### con - connection to database;
@@ -19,7 +18,7 @@ con <- dbConnect(drv, dbname = "output/R/P4.sqlite")
 ### minimum -  edges with absolute weights under this value are omitted
 ### center - ligical indicating if the target node should be placed in the
 ###          center
-### same.country - logical indicating if the most potencial nodes could be
+### same.country - logical indicating if the most correlated nodes could be
 ###                of the same country,
 ###                if FALSE then the most correlated nodes will be searched
 ###                among all nodes expect ones that indicates the country of
