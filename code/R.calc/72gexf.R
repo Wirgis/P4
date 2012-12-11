@@ -5,15 +5,18 @@ library(reshape)
 source("code/R.calc/10code.R")
 
 drv <- SQLite()
+
+## parameters
 con <- dbConnect(drv, dbname = "output/R/P4.sqlite")
-sql <- "SELECT * FROM Correlations limit 10000"
+sql <- "SELECT * FROM Correlations"
+output = "bandom.gexf"
 
 ######### Makes graph and saves it as .gexf file
 ###
 ### con - connection to database;
 ### sql - character indicating the query query for con
 ### output - where to print the GEXF file
-system.time({Mygexf(con, sql, output = "bandom.gexf")})
+system.time({Mygexf(con = con, sql = sql, output = output)})
 
 
 
