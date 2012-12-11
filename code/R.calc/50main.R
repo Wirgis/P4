@@ -22,12 +22,12 @@ source("code/R.calc/10code.R")
 #source("code/R.calc/01readata.R") # USD
 source("code/R.calc/02readata.R") # local currency
 
-data.name <- "data_loc" # will be used below, should match the data.
-data <- data.loc
+data.name <- "data_PC" # will be used below, should match the data.
+data <- data.PC
 
 ######### Choose a hierarchy level you need;
 #unique(data$Hierarchy.Level)
-data <- data[data$Hierarchy.Level == 4, ]
+data <- data[data$Hierarchy.Level != 4, ]
 data$Hierarchy.Level <- NULL
 data <- as.matrix(data)
 
@@ -62,6 +62,7 @@ Category2 SMALLINT, Corr NUMERIC(1,2))"
 
 ######### Form indexes
 indexes <- combn(1:dim(data)[1], 2)
+ni <- dim(indexes)[2]
 
 ######### Form INSERT query
 sql1 <- "INSERT INTO"
@@ -71,14 +72,16 @@ sql.base <- paste(sql1, sql2, sql3)
 
 ######### Choose the range. Only correlations that satisfy the condition are
 # inserted: range1 <= abs(cor) & abs(cor) <= range2
-range1 <- 0.25
+range1 <- 0.5
 range2 <- 1
 
 ######### The cycle for inserting correlations. This is doing sequentially.
-foreach(i = 1:dim(indexes)[2]) %do%{
+#foreach(i = 5000018:ni) %do%{
+for(i in 1:ni) {
     cor <- cor(data[indexes[, i][1], -c(1:2)],
                data[indexes[, i][2], -c(1:2)], method = "kendall",
-               use = "complete.obs")
+               use = "na.or.complete")
+    if(is.na(cor)) next
     if(range1 <= abs(cor) & abs(cor) <= range2) {
         sql <- paste(sql.base, "(",paste(data[indexes[, i][1], "Country"],
                                          data[indexes[, i][1],
@@ -90,7 +93,7 @@ foreach(i = 1:dim(indexes)[2]) %do%{
                      sep = "")
         dbGetQuery(con, sql)
     }
+    if (i %% 1000 == 0) print(paste(i , " out of ", ni))
 }
 
 dbDisconnect(con)
-

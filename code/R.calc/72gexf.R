@@ -8,7 +8,7 @@ drv <- SQLite()
 
 ## parameters
 con <- dbConnect(drv, dbname = "output/R/P4.sqlite")
-sql <- "SELECT * FROM Correlations"
+sql <- "SELECT * FROM Corr_data_PC limit 10"
 output = "bandom.gexf"
 
 ######### Makes graph and saves it as .gexf file
@@ -17,12 +17,3 @@ output = "bandom.gexf"
 ### sql - character indicating the query query for con
 ### output - where to print the GEXF file
 system.time({Mygexf(con = con, sql = sql, output = output)})
-
-
-
-
-
-
-
-
-

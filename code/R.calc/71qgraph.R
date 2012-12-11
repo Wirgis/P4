@@ -24,14 +24,6 @@ con <- dbConnect(drv, dbname = "output/R/P4.sqlite")
 ###                among all nodes expect ones that indicates the country of
 ###                the target node
 ###                if TRUE then the most correlated ones are searched among all
-GraphOne(con, node = c("Country" = 1, "Category" = 350), n = 50,
-         table = "Correlations", edge.labels = FALSE, minimum = 0.45,
+GraphOne(con, node = c("Country" = 1, "Category" = 1), n = 10,
+         table = "Corr_data_PC", edge.labels = FALSE, minimum = 0.45,
          center = TRUE, same.country = TRUE)
-
-
-
-
-
-
-
-
