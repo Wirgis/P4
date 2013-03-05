@@ -16,7 +16,7 @@ myplot <- function(data){
     ggplot(data, aes(x = Comp1, y = Comp2,
                      col = Country,
                      linetype = Country)) +
-                         geom_line(lwd = 0.8) +
+                         geom_path(lwd = 0.8) +
             scale_linetype_manual(values = c(rep("solid", 7), rep("dashed", 7),
                                   rep("dotted", 7), rep("dotdash", 8),
                                   rep("longdash", 8))) +
@@ -42,7 +42,7 @@ myplot <- function(data){
 myplot2 <- function(data, point = "2012", cn, title){
     data <- merge(data, cn, by = "Country")
     q <- ggplot(data, aes(x = Comp1, y = Comp2, col = Country)) +
-        geom_line() +
+        geom_path() +
             geom_text(data = data[data$Year == point, ], aes(label = Code,
                                   x = Comp1, y = Comp2, size = 3.5),
                       hjust = 0, vjust = 0) +
@@ -79,7 +79,7 @@ DoAll <- function(X, cn.year, k = 2){
     ## Multidimensional scaling;
     dd <- dist(X)
     res.mds <- cmdscale(dd, k = k)
-    Y.mds <- cbind(cn,year, res.mds)
+    Y.mds <- cbind(cn.year, res.mds)
     colnames(Y.mds)[c(3, 4)] <- c("Comp1", "Comp2")
 
     ## Non-metrical MDS;
@@ -113,3 +113,7 @@ DoAll <- function(X, cn.year, k = 2){
     list(Y.pca = Y.pca, Y.mds = Y.mds, Y.isoMDS = Y.isoMDS, Y.kpca = Y.kpca,
          Y.spe = Y.spe, Y.lle = Y.lle)
 }
+
+
+
+
