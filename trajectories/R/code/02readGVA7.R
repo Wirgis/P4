@@ -53,7 +53,7 @@ gva.cur.y.hh <- Divide(gva.cur.year, hh, by = c("Region", "Country",
                                          "CountryID", "Subcategory"))
 gva.cur.y.pop <- Divide(gva.cur.year, pop, by = c("Region", "Country",
                                          "CountryID", "Subcategory"))
-gva.cur.y.gdp <- Divide(gva.cur.year, gdp.current.year,
+gva.gdp <- Divide(gva.cur.year, gdp.current.year,
                         by = c("Region", "Country", "CountryID", "Subcategory"))
 
 
@@ -66,8 +66,6 @@ gva.cur.f.hh <- Divide(gva.cur.fix, hh, by = c("Region", "Country",
                                          "CountryID", "Subcategory"))
 gva.cur.f.pop <- Divide(gva.cur.fix, pop, by = c("Region", "Country",
                                          "CountryID", "Subcategory"))
-gva.cur.f.gdp <- Divide(gva.cur.fix, gdp.current.fix,
-                        by = c("Region", "Country", "CountryID", "Subcategory"))
 
 ## gva measured at constant prices, fixed exchange rate;
 gva.con.fix <- gva[(gva$Current.Constant == "constant" & gva$Currency.Conversion == "fixed"), ]
@@ -78,8 +76,6 @@ gva.con.f.hh <- Divide(gva.con.fix, hh, by = c("Region", "Country",
                                          "CountryID", "Subcategory"))
 gva.con.f.pop <- Divide(gva.con.fix, pop, by = c("Region", "Country",
                                          "CountryID", "Subcategory"))
-gva.con.f.gdp <- Divide(gva.con.fix, gdp.constant.fix,
-                        by = c("Region", "Country", "CountryID", "Subcategory"))
 
 rm(list = c("gdp", "gdp.constant.fix", "gdp.current.fix", "gdp.current.year",
    "gdp.ppp", "gdp.total", "gva", "hh", "pop" ,"gva.con.fix", "gva.cur.fix",
