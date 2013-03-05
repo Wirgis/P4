@@ -49,8 +49,3 @@ data.usd$Subcategory <- NULL
 data.usd <- data.usd[, c("Country", "CategorySub",
                              colnames(data.usd)[-c(1, dim(data.usd)[2])])]
 write.csv(data.usd, "data/rawdata/PIUSD.csv", row.names = FALSE)
-
-
-
-
-

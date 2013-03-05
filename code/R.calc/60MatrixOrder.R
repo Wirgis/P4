@@ -27,10 +27,10 @@ cn1 <- 6 # CorrMatBetween parameter
 cn2 <- 17 # CorrMatBetween parameter
 
 # what table from the database to use
-table <- "Correlations"
+table <- "Corr_data_PC"
 
 # hierarchy level, one of c(0:4)
-level <- 4
+level <- 3
 
 # assigns 0 to corrs which satisfy condition:range1 <= abs(corrs) <= range2
 range1 <- 0
@@ -39,7 +39,7 @@ range2 <- 0.4
 # what function from the RBGL package to use for ordering, one of
 # c("cuthill.mckee.ordering", "sloan.ordering", "minDegreeOrdering").
 # If NULL, then a method supplied by the corrplot parameter is used.
-RBGL <- "sloan.ordering"
+RBGL <- "minDegreeOrdering"
 
 # parameter only for CorrMatWithin
 # method for ordering from corrplot package, one of

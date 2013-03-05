@@ -45,5 +45,3 @@ dbCommit(con)
 ## dbGetQuery(con, "DROP TABLE Countries")
 
 dbDisconnect(con)
-
-
