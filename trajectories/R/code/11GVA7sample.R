@@ -22,22 +22,10 @@ ls()
 # 6) gdp - gross domestic product;
 # 7) hh - households;
 
-####################### PER 1000 OF HOUSEHOLDS
 #### CURRENT PRICES, FIXED EXCHANGE RATE, PER 1000 OF HOUSEHOLDS
-data <- gva.cur.f.hh
-sample <- seq(1979, 2012, by = 3)
-
-data <- data[colnames(data) %in% c("Region", "Country", "Subcategory",
-                                   as.character(sample))]
-data <- melt(data, id = c("Region", "Country", "Subcategory"))
-colnames(data)[4] <- "Year"
-data <- cast(data, Region + Country + Year ~ Subcategory)
-data.omit <- na.omit(data)
-data.omit$Country <- factor(as.character(data.omit$Country))
-data.omit$Region <- factor(as.character(data.omit$Region))
-
-Y.hh <- DoAll(X = data.omit[, -c(1:3)],
-              cn.year = data.omit[, c("Country", "Year")], k = 2)
+data <- Sample(gva.cur.f.hh, years = seq(1979, 2012, by = 3))
+Y.hh <- DoAll(X = data[, -c(1:3)], cn.year = data[, c("Country", "Year")],
+              k = 2)
 
 pdf("../results/sample/GVA7/3_hh.pdf", height = 8, width = 17)
  myplot2(data = Y.hh$Y.pca, point = "2012", cn, title = "PCA")
@@ -46,4 +34,42 @@ pdf("../results/sample/GVA7/3_hh.pdf", height = 8, width = 17)
  myplot2(data = Y.hh$Y.kpca, point = "2012", cn, title = "KPCA")
  myplot2(data = Y.hh$Y.spe, point = "2012", cn, title = "SPE")
  myplot2(data = Y.hh$Y.lle, point = "2012", cn, title = "LLE")
+dev.off()
+
+pdf("../results/sample/GVA7/3_hh_pca.pdf", height = 8, width = 17)
+ myplot2(data = Y.hh$Y.pca, point = "2012", cn, title = "PCA")
+dev.off()
+
+pdf("../results/sample/GVA7/3_hh_mds.pdf", height = 8, width = 17)
+ myplot2(data = Y.hh$Y.mds, point = "2012", cn, title = "MDS")
+dev.off()
+
+################### SHARE OF total GDP
+data <- Sample(gva.gdp, years = seq(1979, 2012, by = 3))
+
+Y.gdp <- DoAll(X = data[, -c(1:3)], cn.year = data[, c("Country", "Year")],
+               k = 2)
+
+pdf("../results/sample/GVA7/3_gdp.pdf", height = 8, width = 17)
+ myplot2(data = Y.gdp$Y.pca, point = "2012", cn, title = "PCA")
+ myplot2(data = Y.gdp$Y.mds, point = "2012", cn, title = "MDS")
+ myplot2(data = Y.gdp$Y.isoMDS, point = "2012", cn, title = "isoMDS")
+ myplot2(data = Y.gdp$Y.kpca, point = "2012", cn, title = "KPCA")
+ myplot2(data = Y.gdp$Y.spe, point = "2012", cn, title = "SPE")
+ myplot2(data = Y.gdp$Y.lle, point = "2012", cn, title = "LLE")
+dev.off()
+
+#### CONSTANT PRICES, FIXED EXCHANGE RATE, PER 1000 OF POPULATION
+data <- Sample(gva.con.f.pop, years = seq(1979, 2012, by = 3))
+
+Y.pop <- DoAll(X = data[, -c(1:3)], cn.year = data[, c("Country", "Year")],
+               k = 2)
+
+pdf("../results/sample/GVA7/3_pop.pdf", height = 8, width = 17)
+ myplot2(data = Y.pop$Y.pca, point = "2012", cn, title = "PCA")
+ myplot2(data = Y.pop$Y.mds, point = "2012", cn, title = "MDS")
+ myplot2(data = Y.pop$Y.isoMDS, point = "2012", cn, title = "isoMDS")
+ myplot2(data = Y.pop$Y.kpca, point = "2012", cn, title = "KPCA")
+ myplot2(data = Y.pop$Y.spe, point = "2012", cn, title = "SPE")
+ myplot2(data = Y.pop$Y.lle, point = "2012", cn, title = "LLE")
 dev.off()

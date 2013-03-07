@@ -114,6 +114,26 @@ DoAll <- function(X, cn.year, k = 2){
          Y.spe = Y.spe, Y.lle = Y.lle)
 }
 
+GetDataOmit <- function(data){
+    #data <- melt(data[, -3], id = c("Region", "Country", "Subcategory"))
+    data <- melt(data, id = c("Region", "Country", "Subcategory"))
+    colnames(data)[4] <- "Year"
+    data <- cast(data, Region + Country + Year ~ Subcategory)
+    data.omit <- na.omit(data)
+    data.omit$Country <- factor(as.character(data.omit$Country))
+    data.omit$Region <- factor(as.character(data.omit$Region))
+    data.omit
+}
 
+Cut <- function(data, first = 1977, from = 2000){
+    data <- data[!colnames(data) %in% as.character(c(first:(from - 1)))]
+    GetDataOmit(data)
+}
+
+Sample <- function(data, years = seq(1979, 2012, by = 3)){
+    data <- data[colnames(data) %in% c("Region", "Country", "Subcategory",
+                                       as.character(years))]
+    GetDataOmit(data)
+}
 
 
