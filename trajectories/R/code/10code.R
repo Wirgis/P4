@@ -70,7 +70,7 @@ SetLayout <- function(nrow, ncol){
 
 subplot <- function(x, y) viewport(layout.pos.row = x, layout.pos.col = y)
 
-DoAll <- function(X, cn.year, k = 2){
+DoAll <- function(X, cn.year, k = 2, tsne = FALSE, max.iter.tsne = 1000){
     ## Principal component analysis;
     res.pca <- prcomp(X, scale = TRUE)
     Y.pca <- cbind(cn.year, res.pca$x[, c(1:k)])
@@ -94,10 +94,11 @@ DoAll <- function(X, cn.year, k = 2){
     colnames(Y.kpca)[c(3, 4)] <- c("Comp1", "Comp2")
 
     ## t-SNE;
-    ## res.tsne <- tsne(X, k = k, max_iter = 5000)
-    ## Y.tsne <- cbind(cn.year, res.tsne)
-    ## colnames(Y.tsne)[c(3, 4)] <- c("Comp1", "Comp2")
-
+    if(tsne){
+        res.tsne <- tsne(X, k = k, max_iter = max.iter.tsne)
+        Y.tsne <- cbind(cn.year, res.tsne)
+        colnames(Y.tsne)[c(3, 4)] <- c("Comp1", "Comp2")
+    }
     ## Stochastic proximity embedding;
     res.spe <- spe(X, edim = k)
     Y.spe <- cbind(cn.year, res.spe$x)
@@ -110,8 +111,13 @@ DoAll <- function(X, cn.year, k = 2){
     Y.lle <- cbind(cn.year, res.lle$Y)
     colnames(Y.lle)[c(3, 4)] <- c("Comp1", "Comp2")
 
-    list(Y.pca = Y.pca, Y.mds = Y.mds, Y.isoMDS = Y.isoMDS, Y.kpca = Y.kpca,
-         Y.spe = Y.spe, Y.lle = Y.lle)
+    if(!tsne)
+        list(Y.pca = Y.pca, Y.mds = Y.mds, Y.isoMDS = Y.isoMDS, Y.kpca = Y.kpca,
+             Y.spe = Y.spe, Y.lle = Y.lle)
+    else
+        list(Y.pca = Y.pca, Y.mds = Y.mds, Y.isoMDS = Y.isoMDS, Y.kpca = Y.kpca,
+             Y.spe = Y.spe, Y.lle = Y.lle, Y.tsne = Y.tsne)
+
 }
 
 GetDataOmit <- function(data){

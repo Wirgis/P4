@@ -40,8 +40,8 @@ ce.cur.y.hh <- Divide(ce.cur.year, hh, by = c("Region", "Country",
                                          "CountryID", "Subcategory"))
 ce.cur.y.pop <- Divide(ce.cur.year, pop, by = c("Region", "Country",
                                          "CountryID", "Subcategory"))
-ce.cur.y.gdp <- Divide(ce.cur.year, gdp.current.year,
-                        by = c("Region", "Country", "CountryID", "Subcategory"))
+ce.gdp <- Divide(ce.cur.year, gdp.current.year,
+                 by = c("Region", "Country", "CountryID", "Subcategory"))
 
 
 ## ce measured at current prices, fixed exchange rate;
@@ -53,8 +53,6 @@ ce.cur.f.hh <- Divide(ce.cur.fix, hh, by = c("Region", "Country",
                                          "CountryID", "Subcategory"))
 ce.cur.f.pop <- Divide(ce.cur.fix, pop, by = c("Region", "Country",
                                          "CountryID", "Subcategory"))
-ce.cur.f.gdp <- Divide(ce.cur.fix, gdp.current.fix,
-                        by = c("Region", "Country", "CountryID", "Subcategory"))
 
 ## ce measured at constant prices, fixed exchange rate;
 ce.con.fix <- ce[(ce$Current.Constant == "constant" & ce$Currency.Conversion == "fixed"), ]
@@ -65,8 +63,6 @@ ce.con.f.hh <- Divide(ce.con.fix, hh, by = c("Region", "Country",
                                          "CountryID", "Subcategory"))
 ce.con.f.pop <- Divide(ce.con.fix, pop, by = c("Region", "Country",
                                          "CountryID", "Subcategory"))
-ce.con.f.gdp <- Divide(ce.con.fix, gdp.constant.fix,
-                        by = c("Region", "Country", "CountryID", "Subcategory"))
 
 rm(list = c("gdp", "gdp.constant.fix", "gdp.current.fix", "gdp.current.year",
    "gdp.ppp", "gdp.total", "ce", "hh", "pop" ,"ce.con.fix", "ce.cur.fix",

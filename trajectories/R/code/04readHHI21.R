@@ -18,3 +18,8 @@ hhi$Subcategory <- as.character(hhi$Subcategory)
 hhi$Subcategory <- gsub("Households \\(\\% of Total\\) with an Annual Disposable Income Over US\\$","", hhi$Subcategory)
 hhi$Subcategory <- gsub(" \\(PPP\\)","", hhi$Subcategory)
 hhi$Subcategory <- gsub(", ","", hhi$Subcategory)
+
+## columns containing all NA's
+id <- which(apply(hhi[,-c(1:4)],2,function(x)!all(is.na(x))))
+hhi <- hhi[colnames(hhi) %in% c("Region", "Country", "CountryID", "Subcategory",
+                                names(id))]
