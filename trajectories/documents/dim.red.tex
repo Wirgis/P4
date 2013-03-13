@@ -1,0 +1,710 @@
+\documentclass[a4paper]{article}
+\usepackage{ucs}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{float}
+\usepackage{rotating}
+\usepackage[pdftex,bookmarks=TRUE]{hyperref}
+\usepackage{float}
+\usepackage{rotating}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{theorem}
+\usepackage{calc}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage{bm}
+\usepackage[cm]{fullpage}
+\usepackage{dcolumn}
+\usepackage{pdfpages}
+% General parameters, for ALL pages:
+\renewcommand{\topfraction}{0.99}    %
+\renewcommand{\bottomfraction}{0.99}           % max fraction of floats at bottom
+% Parameters for TEXT pages (not float pages):
+\setcounter{topnumber}{55}
+\setcounter{bottomnumber}{55}
+\setcounter{totalnumber}{55} % 2 may work better
+\setcounter{dbltopnumber}{55} % for 2-column pages
+\renewcommand{\dbltopfraction}{0.99}             % fit big float above 2-col. text
+\renewcommand{\textfraction}{0.01}  % allow minimal text w. figs
+% Parameters for FLOAT pages (not text pages):
+\renewcommand{\floatpagefraction}{0.9}          % require fuller float pages
+                % N.B.: floatpagefraction MUST be less than topfraction !!
+\renewcommand{\dblfloatpagefraction}{0.9}   % require fuller float pages
+
+\usepackage{Sweave}
+\begin{document}
+\title{Dimensionality Reduction methods}
+\maketitle
+
+In this paper some dimensionality reduction techniques are
+examined. The problem could be formulated as follows: transform a
+high-dimensional data set into the lower meaningful representation of
+this data set so that the latter captures the content of the
+former one as much as possible. In mathematical terms, suppose that
+we have the original data set $X$ of dimension $n \times D$, $n$ -
+samples, $D$ - features. The problem is to transform $X$ into $Y$ of
+dimension $n \times d$, where $d < D$. d is the intrinsic dimension of
+the data set $X$ - the minimum number of features that describes
+original data set.
+
+There are lots of methods for dimensionality reduction. As a reference
+this paper follows Matlab Toolbox for Dimensionality Reduction \footnote{"An
+  Introduction to Dimensionality Reduction Using Matlab.pdf"} and
+considers ones which are implemented in the R package. To illustrate techniques some data sets are used. The main aim is to get the
+representation of the original data set so that the visualization
+would be possible, $d = 2$. The paper consists of two main parts:
+theoretical and practical parts. In the first one techniques will be
+introduced theoretically, while in the second - will be applied to
+some data sets using the R statistical package.
+
+\section{Theoretical part}
+In this section techniques will be examined theoretically. Strong and
+weak points are highlighted.
+
+\subsection{Traditional linear techniques}
+In this section two linear dimensionality reduction techniques will be
+considered: a principal components analysis (PCA) and a linear discriminant
+analysis. These techniques result in each of the $d < D$ components of the new variable being a linear combination of the original variables:
+
+\begin{align}
+  &\mathrm{y}_i = w_{i,1}\mathrm{x}_1 + \ldots + w_{i,D}\mathrm{x}_D,\hspace{0.25cm} i =
+  1,2,\ldots, d, \hspace{0.25cm} \text{or}\\
+  &\mathrm{Y} = \mathrm{W}\mathrm{X} \label{eq:trans}, \hspace{0.25cm} \mathrm{W} = d \times D \hspace{0.25cm} \text{matrix}.
+\end{align}
+
+\subsubsection{Principal component analysis}
+
+PCA seeks to reduce the dimension of the data by finding a few
+orthogonal linear combinations (the PCs) of the original variables with the largest variance. The first PC, $\mathrm{y}_1$, is the linear combination with
+the largest variance. We have $\mathrm{y}_1 = \mathrm{X}^T\mathrm{w}_1$, where the D-dimensional
+coefficient vector $\mathrm{w}_1 = (w_{1,1},\ldots,w_{1,D})^T$ solves
+\begin{align*}
+ \mathrm{w}_1 = \arg\max_{||\mathrm{w}=1||}\mathrm{Var}(\mathrm{X}^T\mathrm{w})
+\end{align*}
+The second PC is the linear combination with the second largest
+variance and orthogonal to the first PC, and so on. There are as many
+PCs as the number of the original variables. For many datasets, the
+first several PCs explain most of the variance, so that the rest can
+be disregarded with minimal loss of information. Since the variance depends on the scale of the variables, it is customary to first standardize each variable
+to have mean zero and standard deviation one. After the standardization, the original variables with possibly
+different units of measurement are all in comparable units. It can be
+showed that a matrix $\mathrm{W}$ could be given by $D \times D$ matrix $\mathrm{U}^T$
+from a spectral
+decomposition of the covariance matrix of the standardized data:
+\begin{align*}
+\Sigma &= \mathrm{U} \Lambda \mathrm{U}^T, \hspace{0.25cm} \text{where}\\
+ \Sigma &=\frac{1}{n}\mathrm{X}\mathrm{X}^T
+\end{align*}
+
+\textbf{Strong points}:
+\begin{itemize}
+\item The best, in mean-square error sense, linear dimension reduction
+  technique.
+\end{itemize}
+
+\textbf{Weak points}:
+\begin{itemize}
+\item PCs do not necessarily correspond to meaningful physical
+  quantities;
+\item It is not obvious how many PCs to keep;
+\item It might be infeasible to carry out the decomposition of the data
+  covariance matrix for very high-dimensional data sets;
+\item It is only able to find the linear subspace and thus cannot deal
+  properly with data lying on nonlinear manifolds.
+\end{itemize}
+
+\subsubsection{Linear Discriminant analysis}
+
+PCA is unsupervised in that it does not take class labels into
+account. By contrast Linear Discriminant Analysis (LDA)
+discovers projections on which class differences are taken into
+account. The objective is to uncover a transformation that will
+maximise between-class separation and minimise within-class
+separation. To do this two scatter matrices are defined, SB for
+between-class separation and SW for within-class separation:
+
+\begin{align*}
+  S_B &= \sum_{c \in Class}n_c(\mu_c - \mu)(\mu_c - \mu)^T\\
+  S_W &= \sum_{c \in Class}\sum_{j:x_j \in c}(x_j - \mu_c)(x_j - \mu_c)^T,
+\end{align*}
+where $n_c$ is the number of samples in class c, $\mu_c$ - the mean in
+class c, $\mu$ - the mean of all samples:
+\begin{align*}
+ \mu = \frac{1}{n}\sum_{i=1}^nx_i \hspace{0.25cm}
+ \mu_c=\frac{1}{n_c}\sum_{j:x_j \in c}x_j
+\end{align*}
+The components within these summations $(\mu, \mu_c, x_j)$ are vectors
+of dimension D. The objectives of maximising between-class separation
+and minimising within-class separation can be combined into a single maximisation called the Fisher criterion:
+\begin{align*}
+  W_{LDA} = \arg \max_W \frac{|W^TS_BW|}{|W^TS_WW|}
+\end{align*}
+This matrix $W_{LDA}$ provides the transformation described in
+equation (\ref{eq:trans}).
+
+\textbf{Strong points}:
+\begin{itemize}
+ \item It is supervised learning method, so, where appropriate, it can take class differences into account.
+\end{itemize}
+
+\textbf{Weak points}:
+\begin{itemize}
+ \item As with PCA the constraint that the transformation is linear is
+   sometimes considered restricting;
+ \item Some algorithms require that $S_W$ be non-singular. In case of
+   the high-dimensional data set, it could be a problem.
+ %\item It is not so obvious how to choose the dimension of the $W_{LDA}$ matrix.
+\end{itemize}
+
+\subsection{Global nonlinear techniques}
+Global nonlinear techniques for dimensionality reduction are
+techniques that attempt to preserve global properties of the data, but that are capable of constructing nonlinear transformations between the
+high-dimensional data representation X and its low-dimensional
+counterpart Y . The subsection presents five global nonlinear
+techniques for dimensionality reduction: Multidimensional scaling(MDS),
+Kernel PCA, Isomap, t-Distributed Stochastic neighbor embedding(t-SNE) and Stochastic proximity embedding(SPE).
+
+\subsubsection{Multidimensional scaling}
+
+Given n items in a D-dimensional space and a $n \times n$ matrix of
+proximity measures among the items, multidimensional scaling (MDS) produces a d-dimensional representation of the items such that the
+distances among the points in the new space reflect the proximities in
+the data. The proximity measures the (dis)similarities among the items, and in general, it is a distance measure: the more similar two
+items are, the smaller their distance is.
+
+Given the n D-dimensional items, $\{x_i\}_{i=1}^n$, and a symmetric
+distance matrix $\Delta = \{\delta_{ij}, i,j = 1,\ldots,n\}$, the result of a d-dimensional MDS
+will be the d-dimensional items, $\{y_i\}_{i=1}^n$, such that the
+distances $d_{ij}=d(y_i,y_j)$ are as close as possible to a function
+$f$ of the corresponding proximities $f(\delta_{ij})$. MDS methods that incorporate the given distances $\delta_{ij}$ into their calculations are called metric
+methods, while the ones that only use the rank ordering of the
+distances are called non-metric methods. In contrast, depending on whether $f$
+is linear or non-linear, MDS is called either metric or non-metric, correspondingly.
+
+The steps for the most general estimation procedure are as follows:
+
+\begin{enumerate}
+  \item Define the stress function as an objective function to be
+    minimized by $f$:
+    \begin{align*}
+     \text{stress}_f(f, \Delta,
+     X)=\sqrt{\frac{\sum_{i,j}[f(\delta_{ij})-d_{ij}]^2}{\text{scale
+           factor}}},
+    \end{align*}
+    where the scale factor is usally based on
+    $\sum_{ij}[f(\delta_{ij})]^2$ or on $\sum_{ij}d_{ij}^2$
+  \item given X find $\hat{f}$ that minimizes a stress function:
+    \begin{align*}
+     \hat{f}= \arg\min_f[\text{stress}_f(f, \Delta, X)],
+    \end{align*}
+  \item determine the optimal $\hat{X}$ by:
+    \begin{align*}
+     \hat{X}= \arg\min_X[\text{stress}(\hat{f}, \Delta, X)].
+    \end{align*}
+\end{enumerate}
+
+\textbf{Strong points}:
+\begin{itemize}
+ \item MDS methods are capable of constructing nonlinear
+   transformations between the high-dimensional data representation X and its low-dimensional counterpart Y.
+\end{itemize}
+
+\textbf{Weak points}:
+\begin{itemize}
+\item It is difficult to select the appropriate dimension of Y;
+\item MDS does a much better job in representing large distances (the
+  global structure) than small ones (the local structure);
+\item Contrarily to principal component analysis, in MDS one cannot
+  obtain an (d-1)-dimensional map out of an d-dimensional one by dropping one coordinate (or, in general, by linearly projecting along
+some direction).
+\end{itemize}
+
+
+
+\subsubsection{Kernel PCA}
+
+Kernel PCA (KPCA) is the reformulation of traditional linear PCA in a
+high-dimensional space that is constructed using a kernel
+function. Kernel PCA computes the principal eigenvectors of the kernel
+matrix, rather than those of the covariance matrix. The reformulation
+of traditional PCA in kernel space is straightforward, since a kernel
+matrix is similar to the inproduct of the data points in the high-dimensional space that is constructed using the kernel
+function. Kernel PCA computes the kernel matrix K of the data points $x_i$. The entries in the kernel matrix are defined by:
+\begin{align*}
+    k_{ij}= \kappa(x_i, x_j),
+\end{align*}
+where $\kappa$ is a kernel function. Subsequently, the kernel matrix K
+is centered using the following modification of the entries:
+\begin{align*}
+  k_{ij}= k_{ij}-\frac{1}{n}\sum_l k_{il}-\frac{1}{n}\sum_l k_{jl} + \frac{1}{n^2}\sum_{lm} k_{lm}
+\end{align*}
+The centering operation corresponds to subtracting the mean of the
+features in traditional PCA. It makes sure that the features in the
+high-dimensional space defined by the kernel function are
+zero-mean. Subsequently, the principal d eigenvectors $v_i$ of the centered kernel matrix are computed. It can be shown that the eigenvectors of the covariance
+matrix $\alpha_i$(in the high-dimensional space constructed by
+$\kappa$) are scaled versions of the eigenvectors of the kernel matrix
+$v_i$:
+\begin{align*}
+  \alpha_i = \frac{1}{\sqrt{\lambda_i}}v_i
+\end{align*}
+In order to obtain the low-dimensional data representation, the data
+is projected onto the eigenvectors of the covariance matrix. The result of the projection (i.e., the low-dimensional data representation Y ) is given by:
+\begin{align*}
+  Y = \Big\{\sum_j\alpha_1\kappa(x_j,x),\sum_j\alpha_2\kappa(x_j,x),\ldots,\sum_j\alpha_d\kappa(x_j,x)\Big\}
+\end{align*}
+
+\textbf{Strong points}:
+\begin{itemize}
+  \item Capability of constructing a nonlinear mapping with little computational cost.
+  \item The computational complexity of KPCA does not grow with the
+    dimensionality of the feature space.
+  \item No nonlinear optimization is involved - what is only needed is
+    to solve an eigenvalue problem as in the case of standard PCA.
+\end{itemize}
+
+\textbf{Weak points}:
+\begin{itemize}
+  \item The mapping highly relies on the choice of the kernel function $\kappa$.
+\end{itemize}
+
+\subsubsection{t-Distributed Stochastic Neighbor Embedding}
+In this section two dimensionality reduction techniques are examined:
+Stochastic Neighbor Embedding(SNE) and its extension - t-Distributed
+Stochastic Neighbor Embedding(t-SNE).
+
+Stochastic Neighbor Embedding is an iterative technique that (similar to MDS) attempts to retain the pairwise
+distances between the datapoints in the low-dimensional representation
+of the data. SNE differs from MDS by the distance measure that is used, and by the cost function that it minimizes. In SNE, similarities of nearby points
+contribute more to the cost function. This leads to a low-dimensional
+data representation that preserves mainly local properties of the manifold.
+
+The similarity of datapoint $x_j$ to datapoint $x_i$ is the
+probability, $p_{ij}$, that $x_i$ would pick $x_j$ as its neighbor
+if neighbors were picked in proportion to their probability density
+under a Gaussian centered at $x_i$. For nearby datapoints, $p_{ij}$ is relatively high, whereas for widely separated datapoints, $p_{ij}$ will be
+almost infinitesimal. Mathematically, the probability $p_{ij}$ is given by:
+\begin{align*}
+p_{ij}=\frac{\exp\{-||x_i-x_j||^2/2\sigma^2\}}{\sum_{k \neq l}\exp\{-||x_k-x_l||^2/2\sigma^2\}}.
+\end{align*}
+For the low-dimensional counterparts $y_i$ and $y_j$ of the
+high-dimensional datapoints $x_i$ and $x_j$, it is possible to compute
+a similar conditional probability, $q_{ij}$.
+In a perfect low-dimensional representation of the data, $p_{ij}$ and
+$q_{ij}$ are equal. Hence, SNE minimizes the mismatch between
+$p_{ij}$ and $q_{ij}$. Kullback-Leibler divergences are a natural
+distance measure to measure the difference between two probability distributions. SNE attempts to minimize the following sum of Kullback-Leibler divergences:
+
+\begin{align*}
+ C=\sum_{ij}p_{ij}\log\frac{p_{ij}}{q_{ij}}.
+\end{align*}
+The above method suffers from the "crowding problem": when the intrinsic dimensionality of the data exceeds the embedding dimensionality, there is
+not enough space in the embedding to allow data points to separate.
+Therefore, data points are forced to collapse on top of each other
+in the embedding. t-SNE uses a Student-t distribution rather than a Gaussian to
+compute the similarity between two points in the low-dimensional
+space. t-SNE employs a heavy-tailed distribution in the low-dimensional space to alleviate the crowding problem.
+
+\textbf{Strong points}:
+\begin{itemize}
+  \item The use of heavy tailed distribution avoids the "crowding problem".
+\end{itemize}
+
+\textbf{Weak points}:
+\begin{itemize}
+  \item It's typically only used as a visualization method (d = 2 or
+    3).
+  \item It reduces the dimensionality of data mainly based on
+local properties of the data, which makes t-SNE sensitive to the curse
+of the intrinsic dimensionality of the data. As a result, t-SNE might be less successful if it is applied on data sets with a very high intrinsic dimensionality.
+  \item t-SNE is not guaranteed to converge to a global optimum of its
+    cost function.
+\end{itemize}
+
+\subsubsection{Stochastic Proximity Embedding}
+
+Stochastic Proximity Embedding (SPE) is an iterative algorithm that
+minimizes the MDS raw stress function. SPE differs from MDS in the
+efficient rule it employs to update the current estimate of the
+low-dimensional data representation. SPE minimizes the MDS raw stress function:
+
+\begin{align*}
+  S=\sum_{ij}(d_{ij}-r_{ij})^2,
+\end{align*}
+where $r_{ij}$ is the proximity between the high-dimensional
+datapoints $x_i$ and $x_j$, and $d_{ij}$ is the Euclidean distance between their low-dimensional counterparts $y_i$ and $y_j$ in the current approximation of the
+embedded space. The form of the stress function $S$ could be
+different, e.g.  Kruskal's or Sammon's. SPE performs an iterative algorithm in order to minimize the raw stress function defined above. The initial positions
+of the points $y_i$ are selected randomly. An update of the embedding coordinates $y_i$ is performed by randomly
+selecting s pairs of points ($y_i$, $y_j$). For each pair of points, the Euclidean distance in the low-dimensional data representation
+$Y$ is computed. Subsequently, the coordinates of $y_i$ and $y_j$ are updated in order to decrease the difference
+between the distance in the original space $r_{ij}$ and the distance
+in the embedded space $d_{ij}$. The updating is performed using the following update rules:
+
+\begin{align*}
+  y_i &= y_i + \lambda \frac{r_{ij}-d_{ij}}{2d_{ij} + \epsilon}(y_i - y_j)\\
+  y_j &= y_j + \lambda \frac{r_{ij}-d_{ij}}{2d_{ij} + \epsilon}(y_j - y_i),
+\end{align*}
+where $\lambda$ is a learning parameter that decreases with the number of iterations, and $\epsilon$ is a regularization parameter that
+prevents divisions by zero.
+
+\textbf{Strong points}:
+\begin{itemize}
+  \item Fast. It is known that the relative configuration of $N$ points in a
+    $D$-dimensional space can be fully described using only $(N - D/2
+    - 1)/(D - 1)$ distances. SPE exploits this redundancy through random sampling.
+\end{itemize}
+
+\textbf{Weak points}:
+\begin{itemize}
+  \item The performance of the algorithm depends on the parameter
+    $\lambda$. If $\lambda$ is too small, self-organization will be
+    smooth, but will converge slowly. If $\lambda$ is too large,
+    convergence will be fast but the map may become unstable.
+\end{itemize}
+
+\subsection{Local nonlinear techniques}
+The previous section presented some techniques for dimensionality reduction that attempt to retain global properties of
+the data. In contrast, local nonlinear techniques for dimensionality reduction are based on solely preserving properties
+of small neighborhoods around the datapoints. The key idea behind these techniques is that by preservation of local
+properties of the data, the global layout of the data manifold is retained as well.
+
+\subsubsection{Local Linear Embedding}
+
+Local linear embedding (LLE) is another approach which address the problem of non-linear dimensionality reduction
+by computing low-dimensional, neighborhood preserving embedding of
+high-dimensional data. A data set of dimensionality $D$, which is
+assumed to lie on or near a smooth nonlinear manifold of
+dimensionality $d < D$, is mapped into a single global coordinate system of lower dimensionality, $d$. The global nonlinear structure is recovered by locally
+linear fits.
+
+Consider $n$ $D$-dimensional real-valued vectors $x_i$ sampled from some underlying manifold. We can assume each
+data point and its neighbors lie on, or are close to, a locally linear patch of the manifold. By a linear mapping,
+consisting of a translation, rotation, and rescaling, the high-dimensional coordinates of each neighbourhood can be
+mapped to global internal coordinates on the manifold. Thus, the nonlinear structure of the data can be identified
+through two linear steps: first, compute the locally linear patches, and second, compute the linear mapping to the
+coordinate system on the manifold.
+
+The main goal here is to map the high-dimensional data points to the single global coordinate system of the
+manifold such that the relationships between neighboring points are preserved. This proceeds in three steps:
+
+\begin{enumerate}
+  \item Identify the neighbors of each data point $x_i$. This can be done by finding the $k$ nearest neighbors, or by choosing
+all points within some fixed radius.
+  \item Compute the weights that best linearly reconstruct $x_i$ from its neighbors.
+  \item Find the low-dimensional embedding vector $y_i$ which is best reconstructed by the weights determined in the
+previous step.
+\end{enumerate}
+
+After finding the nearest neighbors in the first step, the second step must compute a local geometry for each locally
+linear patch. This geometry is characterized by linear coefficients that reconstruct each data point from its neighbors.
+
+\begin{align*}
+ \min_w \sum_{i=1}^n ||x_i - \sum_{j=1}^k w_{ij}x_{N_i(j)}||^2,
+\end{align*}
+where $N_i(j)$ is the index of the $j$th neighbor of the $i$th point. It then selects code vectors so as to preserve the
+reconstruction weights by solving
+
+\begin{align*}
+ \min_Y \sum_{i=1}^n ||y_i - \sum_{j=1}^k w_{ij}y_{N_i(j)}||^2
+\end{align*}
+It can be shown that the coordinates of the low-dimensional representations $y_i$ that minimize this cost function can be
+found by computing the eigenvectors corresponding to the smallest d
+nonzero eigenvalues of the inproduct of $(I - W)$.
+In this formula, $I$ is the $n \times n$ identity matrix and $W$ - reconstruction weights.
+
+\textbf{Strong points}
+\begin{itemize}
+  \item It attempts to preserve solely local properties of the data. As a result, LLE is not so sensitive to short-circuiting,
+because only a small number of properties are affected if short-circuiting occurs.
+\end{itemize}
+
+\textbf{Weak points}
+\begin{itemize}
+  \item LLE tends to collapse large portions of the data onto a single point in cases where the target dimensionality is
+too low.
+\end{itemize}
+
+\section{Practical part}
+In this section techniques described in the Theoretical part will be
+applied for $4$ data sets: the Gross Value Added ($7$ categories), the Consumer Expenditure ($12$ categories), the distribution of
+households according to the annual disposable income ($21$ categories)
+and the Population divided into different age groups ($17$ categories). As mentioned in the introduction, the main
+aim is to visualize the original data set in a $2$-dimensional graph.
+
+The following items present libraries and functions of the \textit{R} package which
+implement methods examined in this paper. Use \textit{help()} if you
+need any more details about functions:
+\begin{enumerate}
+  \item Principal Component Analysis. The \textit{prcomp()} function
+    from the \textit{stats} library.
+  \item Linear Discriminant Analysis. The \textit{lda()} function
+    from the \textit{MASS} library.
+  \item Multidimensional scaling. The
+\textit{cmdscale()} function for a classical(metric) MDS from
+the \textit{stats} package and the \textit{isoMDS()} - for
+a non-metric MDS from the \textit{MASS} package.
+  \item Kernel Principal Components Analysis. The \textit{kpca()} function
+    from the \textit{kernlab} library.
+  \item t-Distributed Stochastic Neighbour Embedding. The
+    \textit{tsne()} function from the \textit{tsne} library.
+  \item Stochastic Proximity Embedding. The \textit{spe()} function
+    from the \textit{spe} library.
+  \item Local Linear Embedding. The \textit{lle()} function
+    from the \textit{lle} library.
+\end{enumerate}
+
+\subsection{Gross Value Added}
+There are some representations of this data set because of different
+measurement and scaling types. The data is expressed in
+current or constant prices and converted to US\$ using year-on-year or
+fixed exchange rates. There are also $3$ different scaling types:
+using Total GDP data, using Number of Households data and using
+Population data. As a result, $7$ data frames are available. Before
+moving to the results some findings should be mentioned here:
+
+\begin{itemize}
+\label{item:gva}
+  \item There are no difference in the results using the data
+    measured in current or constant prices.
+  \item There are also no difference in the results using fixed or
+    year-on-year exchange rates.
+  \item The scaling using Total GDP data works worst comparing
+    with other $2$ scaling types: no any structure in a visualization of
+    the original data set. Other two ones give quit similar results,
+    but the scaling type that uses the Population
+    data is prefered here, because the typical household size could be
+    different across countries, so a gross value added per 1000 of
+    population seems to make countries more comparable.
+\end{itemize}
+As a result of above items the data measured in current prices,
+converted using fixed exchange rate and scaled using the Population
+data will be used here.
+\newpage
+\subsubsection{All countries, full time series}
+In this section graphs which are resulted from applying dimensionality reduction
+methods for all countries and full time series are presented. Here
+only the "best" representation of the original data set is
+displayed. Other ones could be found in the appendix \ref{app:gva.full}.
+
+\begin{figure}[!htbp]
+\begin{center}
+\includegraphics[page=5]{../R/results/all/GVA7/cur_f_pop.pdf}
+\caption{GVA, full, Stochastic Proximity Embedding.}
+\label{fig:gva.spe}
+\end{center}
+\end{figure}
+
+The figure \ref{fig:gva.spe} is too crowded: most of the trajectories overlap each other, there are some obvious outliers, such as AE-United Arab Emirates or NO-Norway. So the reduction of information is needed to make a graph more clear.
+
+\subsubsection{All countries, shorter sample}
+In this section shorter time series are used to solve the overlapping or crowding problem. In this case the sample period is $2000-2012$. As in the previous section, only one graph is presented here. Other ones could be found in the appendix \ref{app:gva.cut}. 
+
+\begin{figure}[!htbp]
+\begin{center}
+\includegraphics[page=2]{../R/results/period/GVA7/short_2000_pop.pdf}
+\caption{GVA, short, Multidimensional scaling.}
+\label{fig:gva.cut.mds}
+\end{center}
+\end{figure}
+
+As could be seen in the figure \ref{fig:gva.cut.mds}, shorter times series made the visualization more clear. In contrast to the graph in the previous section, some clusters with trajectories moving to the similar direction could be found. As in the previous case, AE-United Arab Emirates, NO-Norway and CH-Switzerland are outliers. So the using of shorter time series helps to solve a crowding problem, but some information about starting points of trajectories is lost. This could be a drawback if someone is particularly interested in how countries move through time and not only where they are now. 
+
+\subsubsection{All countries, every $n$'th point}
+One of the problems with the visualization using full time series is that trajectories are not so stable. In the previous section shorter time series, using all available observation points of the chosen period, were used. In this case samples are taken by extracting every $n$'th point of full time series. The advantage of doing so would be if someone wants to preserve as much historical information as possible.
+
+\begin{figure}[!htbp]
+\begin{center}
+\includegraphics[page=5]{../R/results/sample/GVA7/3_pop.pdf}
+\caption{GVA, every third point, Stochastic Proximity embedding.}
+\label{fig:gva.sample.spe}
+\end{center}
+\end{figure}
+
+The figure \ref{fig:gva.sample.spe} was made using every third observation point. Trajectories in the figure above are more stable comparing with ones depicted in the figure \ref{fig:gva.spe}, but the problem of overlapping trajectories still exists. Other graphs are in the appendix \ref{app:gva.sample}.
+
+\subsubsection{Subset of countries}
+\label{sec:gva.region}
+In this section the analysis is carried out using not all available countries, but the subset of them. All countries are divided into two groups. The first group consists of countries of Europe and North America regions. The second one covers Asia Pacific, Australasia, Middle East and Africa and Latin America regions. The sample period is $2000-2012$.
+
+\begin{figure}[!htbp]
+\begin{center}
+\includegraphics[page=5]{../R/results/region/period/GVA7/america_euro_short_pop.pdf}
+\caption{GVA, the first part of countries, Stochastic Proximity embedding.}
+\label{fig:gva.region.first.spe}
+\end{center}
+\end{figure}
+
+\begin{figure}[!htbp]
+\begin{center}
+\includegraphics[page=1]{../R/results/region/period/GVA7/other_short_pop.pdf}
+\caption{GVA, the second part of countries, Principal Components Analysis.}
+\label{fig:gva.region.second.pca}
+\end{center}
+\end{figure}
+
+As could be seen in the figure \ref{fig:gva.region.first.spe} there are some clusters. The biggest one consists of 'rich' countries such as USA, United Kingdom or France. The other group which contains Greece, Portugal, Spain and maybe Italy could be named as 'followers' that follow the biggest cluster. There are also the third group of countries which also move towards the biggest group, but seems to be not so close as the 'followers' are. Switzerland and Norway are outliers in this case. The figure \ref{fig:gva.region.second.pca} depicts trajectories of the second part of countries. There are one cluster of countries which are close to each other and some outliers such as United Arab Emirates or Hong Kong.
+
+\subsection{Consumer Expenditure}
+As in the case of the Gross Value Added data set, the Consumer Expenditure(CE) data set also has some representations and same things about it(see items in the section \ref{item:gva}) could be said there. So in this section results will be based on the CE measured at current prices, converted to US\$ using fixed exchange rate and expressed per 1000 of population. Following pictures were made by dividing countries into two groups and applying dimensionality reduction methods separately. Groups were chosen by the same way as in the section \ref{sec:gva.region}, except the fact that Australia was added to the first group. The sample period is $2000-2012$.     
+
+\begin{figure}[!htbp]
+\begin{center}
+\includegraphics[page=1]{../R/results/region/period/CE12/america_euro_2000_pop.pdf}
+\caption{CE, the first part of countries, Principal Components Analysis.}
+\label{fig:ce.region.first.pca}
+\end{center}
+\end{figure}
+
+Some quit similar comments to ones in the section \ref{sec:gva.region} could be said here. There are two obvious clusters: one contains richer countries such as Germany, France or United Kingdom, another one - countries which follow them. Norway and Switzerland are outliers. Australia and USA have their own direction and are separated from other ones. Furthermore, there are two countries which changed their directions drastically - Greece and Ireland.   
+
+\begin{figure}[!htbp]
+\begin{center}
+\includegraphics[page=2]{../R/results/region/period/CE12/other_2000_pop.pdf}
+\caption{CE, the second part of countries, Multidimensional Scaling.}
+\label{fig:ce.region.second.mds}
+\end{center}
+\end{figure}
+
+The figure \ref{fig:ce.region.second.mds} has one cluster which contains countries which are very close to each other and have the same direction. Singapore, Hong Kong, New Zealand and Israel could be seen as forming another cluster. Japan and United Arab Emirates are outliers.   
+
+\subsection{Distribution of Households, Annual Disposable Income}
+In this section the data on a distribution of households according to annual disposable income levels(HHI) is examined. No any transformations are needed, because the data is in percentage units. Countries are divided into two groups,
+the period of sample is $2000-2012$.  
+
+\begin{figure}[!htbp]
+\begin{center}
+\includegraphics[page=2]{../R/results/region/period/HHI21/america_euro_2000.pdf}
+\caption{HHI, the first part of countries, Multidimensional scaling.}
+\label{fig:hhi.region.first.mds}
+\end{center}
+\end{figure}
+
+As could be seen in the figure \ref{fig:hhi.region.first.mds} there are some countries - 'leaders' and some that follow them.
+The other group of countries, the figure \ref{fig:hhi.region.second.mds}, looks quit similar except the fact that United Arab Emirates move to the opposite direction than others.  
+
+\begin{figure}[!htbp]
+\begin{center}
+\includegraphics[page=2]{../R/results/region/period/HHI21/other_2000.pdf}
+\caption{HHI, the second part of countries, Multidimensional scaling.}
+\label{fig:hhi.region.second.mds}
+\end{center}
+\end{figure}
+
+\newpage
+\subsection{Population by age groups}
+The original data set is scaled by the total number of population in the country. This makes countries comparable. The figure below includes all available countries. The period of sample is $2000-2012$. Two clusters of countries could be found in the figure \ref{fig:pop.spe}. United Arab Emirates is the outlier.
+
+\begin{figure}[!htbp]
+\begin{center}
+\includegraphics[page=5]{../R/results/period/POP17/pop_2000.pdf}
+\caption{POP, Stochastic Proximity Embedding.}
+\label{fig:pop.spe}
+\end{center}
+\end{figure}
+
+\section{Conclusion}
+Methods:
+\begin{itemize}
+  \item If the main aim is to get the 2-dimensional representation of the data, then Linear Discriminant Analysis requires to divide the data set into three groups. In our cases it is the restriction. Sometimes the division into groups is not so obvious.
+  \item The \textit{R} package offers two versions of the Multidimensional Scaling method: a classical(metric) MDS and non-metric MDS. There were no differences found between them: resulted visualizations were very similar to each other.
+  \item The Kernel Principal Components Analysis worked not very good in our cases, because resulted visualizations were strange and messy. It was hard to find any structure in graphs. As it was mentioned, the mapping highly depends on the kernel function. Maybe the other kernel would work better, but it requires additional survey and time to decide which kernel would be better. 
+  \item The t-Distributed Stochastic Neighbour Embedding is a optimization based method, so requires some iterations to converge to a global optimum. In our cases it wasn't obvious how many iterations were needed. Some different values were tried, but resulted visualizations were messy. Furthermore, this method is the most time consuming comparing to others.
+  \item In our cases Principal Component Analysis, Multidimensional Scaling, Stochastic Proximity Embedding and sometimes Local Linear Embedding worked best and gave quit similar results.  
+\end{itemize}
+
+Other findings:
+\begin{itemize}
+  \item Applying dimensionality reduction methods for all countries together results in graphs which are too crowded, trajectories overlap each other.
+  \item The using of shorter time series helps to solve a crowding problem, but some information about starting points of trajectories is lost. This could be a drawback if someone is particularly interested in how countries move through time and not only where they are now. 
+  \item The problem of using full times series is that trajectories are unstable. Taking samples by extracting every $n$'th point
+  makes them more stable.
+  \item The division of countries into groups helps to solve the crowding problem, but it could be a drawback if someone wants to see the global picture.
+\end{itemize}
+
+
+\newpage
+\appendix
+\section{GVA}
+\subsection{Full}
+\label{app:gva.full}
+
+\begin{figure}[!htbp]
+\begin{center}
+\includegraphics[page=1]{../R/results/all/GVA7/cur_f_pop.pdf}
+\includegraphics[page=2]{../R/results/all/GVA7/cur_f_pop.pdf}
+\includegraphics[page=3]{../R/results/all/GVA7/cur_f_pop.pdf}
+%\includegraphics[page=5]{../R/results/all/GVA7/cur_f_pop.pdf}
+%\includegraphics[page=6]{../R/results/all/GVA7/cur_f_pop.pdf}
+%\includegraphics[page=7]{../R/results/all/GVA7/cur_f_pop.pdf}
+%\caption{GVA-other.}
+\end{center}
+\end{figure}
+
+\begin{figure}[!htbp]
+\begin{center}
+%\includegraphics[page=3]{../R/results/all/GVA7/cur_f_pop.pdf}
+\includegraphics[page=4]{../R/results/all/GVA7/cur_f_pop.pdf}
+\includegraphics[page=6]{../R/results/all/GVA7/cur_f_pop.pdf}
+\includegraphics[page=7]{../R/results/all/GVA7/cur_f_pop.pdf}
+\caption{GVA, full, other.}
+\end{center}
+\end{figure}
+
+\newpage
+\subsection{Short}
+\label{app:gva.cut}
+
+\begin{figure}[!htbp]
+\begin{center}
+\includegraphics[page=1]{../R/results/period/GVA7/short_2000_pop.pdf}
+\includegraphics[page=3]{../R/results/period/GVA7/short_2000_pop.pdf}
+\includegraphics[page=4]{../R/results/period/GVA7/short_2000_pop.pdf}
+\includegraphics[page=5]{../R/results/period/GVA7/short_2000_pop.pdf}
+\caption{GVA, short, other.}
+\end{center}
+\end{figure}
+
+\begin{figure}[!htbp]
+\begin{center}
+\includegraphics[page=6]{../R/results/period/GVA7/short_2000_pop.pdf}
+\includegraphics[page=7]{../R/results/period/GVA7/short_2000_pop.pdf}
+\caption{GVA, short, other.}
+\end{center}
+\end{figure}
+
+\newpage
+\subsection{Every $n$'th point}
+\label{app:gva.sample}
+
+\begin{figure}[!htbp]
+\begin{center}
+\includegraphics[page=1]{../R/results/sample/GVA7/3_pop.pdf}
+\includegraphics[page=2]{../R/results/sample/GVA7/3_pop.pdf}
+\includegraphics[page=3]{../R/results/sample/GVA7/3_pop.pdf}
+%\includegraphics[page=5]{../R/results/sample/GVA7/3_pop.pdf}
+%\includegraphics[page=6]{../R/results/sample/GVA7/3_pop.pdf}
+%\includegraphics[page=7]{../R/results/sample/GVA7/3_pop.pdf}
+%\caption{GVA-other.}
+\end{center}
+\end{figure}
+
+\begin{figure}[!htbp]
+\begin{center}
+%\includegraphics[page=3]{../R/results/sample/GVA7/3_pop.pdf}
+\includegraphics[page=4]{../R/results/sample/GVA7/3_pop.pdf}
+\includegraphics[page=6]{../R/results/sample/GVA7/3_pop.pdf}
+\includegraphics[page=7]{../R/results/sample/GVA7/3_pop.pdf}
+\caption{GVA, every third point, other.}
+\end{center}
+\end{figure}
+
+% <<echo=FALSE>>=
+% setwd("../../documents")
+% @
+
+
+\end{document}
+
